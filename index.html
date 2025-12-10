@@ -90,7 +90,6 @@
             column-gap: 5%; /* Hueco del lomo */
             position: relative;
             z-index: 20;
-            /* Ajuste vertical fino para que no se vea "caído" por la sombra del dibujo */
             margin-bottom: 2%; 
         }
 
@@ -172,26 +171,23 @@
         const IMG_KUKURI = "kukuri.png"; 
         const AUDIO_BGM = "bgm.mp3"; 
         
-        // Archivo a descargar (en la raíz)
-        const FILE_TO_DOWNLOAD = "CircleOfLove_Demo.zip";
+        // Archivos para descargar
+        const FILE_DEMO = "CircleOfLove_Demo.zip";
+        const FILE_BONUS = "CircleOfLove_Bonus.zip"; // Archivo de la segunda descarga
 
-        // URLs de respaldo solo para previsualización
+        // URLs de respaldo
         const FALLBACK_NIKE = "http://googleusercontent.com/image_generation_content/0";
         const FALLBACK_KUKURI = "http://googleusercontent.com/image_generation_content/1";
 
         // --- COMPONENTES ---
-        const DownloadIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        );
-
-        // NUEVA ESPIRAL DE INVOCACIÓN (Sustituye al botón)
+        
+        // 1. ESPIRAL DE INVOCACIÓN (INICIO)
         const InvocationSpiral = ({ onClick, isInvoking }) => (
             <div 
                 onClick={onClick} 
                 className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isInvoking ? 'scale-125' : 'hover:scale-110'}`}
             >
                 <div className="relative w-64 h-64 md:w-80 md:h-80">
-                    {/* Espiral Giratoria SVG */}
                     <svg 
                         viewBox="0 0 100 100" 
                         className={`w-full h-full text-[#d63031] drop-shadow-xl ${isInvoking ? 'animate-[spin_0.3s_linear_infinite]' : 'animate-[spin_8s_linear_infinite]'}`}
@@ -200,23 +196,55 @@
                         strokeWidth="4" 
                         strokeLinecap="round"
                     >
-                        {/* Espiral Mágica Compleja */}
                         <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" opacity="0.8"/>
                         <path d="M50 50 m 0 -2 a 2 2 0 1 0 0 4 a 2 2 0 1 0 0 -4" fill="currentColor" />
-                        {/* Rayos decorativos */}
                         <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" strokeWidth="2" opacity="0.6"/>
                     </svg>
-                    
-                    {/* Texto central */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <span className={`font-bold text-2xl text-[#4a0e4e] bg-white/90 px-4 py-1 rounded-full backdrop-blur-md shadow-lg transition-opacity border-2 border-[#d63031] ${isInvoking ? 'opacity-0' : 'opacity-100'}`}>
                             INVOCAR
                         </span>
                     </div>
                 </div>
-                
                 <p className={`mt-4 handwritten text-xl text-[#d63031] font-bold text-center bg-white/60 px-4 py-1 rounded ${isInvoking ? 'animate-pulse' : ''}`}>
                     {isInvoking ? "¡INVOCANDO MAGIA...!" : "Toca el Círculo Mágico"}
+                </p>
+            </div>
+        );
+
+        // 2. ESPIRAL FINAL (TESORO) - DIFERENTE
+        const FinalSpiral = ({ onClick, isCollecting }) => (
+            <div 
+                onClick={onClick} 
+                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isCollecting ? 'scale-110 opacity-50' : 'hover:scale-105'}`}
+            >
+                <div className="relative w-40 h-40">
+                    <svg 
+                        viewBox="0 0 100 100" 
+                        className={`w-full h-full text-pink-500 drop-shadow-xl ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="3" 
+                        strokeLinecap="round"
+                    >
+                        {/* Espiral con forma más geométrica/floral */}
+                        <path d="M50 50 m 0 -5 a 5 5 0 1 0 0 10 a 10 10 0 1 0 0 -20 a 20 20 0 1 0 0 40 a 30 30 0 1 0 0 -60" opacity="0.8"/>
+                        <circle cx="50" cy="50" r="45" strokeDasharray="5,5" opacity="0.5" />
+                        <path d="M50 50 L50 10" strokeWidth="2" className="text-yellow-400" />
+                        <path d="M50 50 L90 50" strokeWidth="2" className="text-yellow-400" />
+                        <path d="M50 50 L10 50" strokeWidth="2" className="text-yellow-400" />
+                        <path d="M50 50 L50 90" strokeWidth="2" className="text-yellow-400" />
+                        <circle cx="50" cy="50" r="8" fill="#FFD700" />
+                    </svg>
+                    
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className={`font-bold text-lg text-white bg-pink-600/90 px-3 py-1 rounded-full shadow-lg border-2 border-white ${isCollecting ? 'opacity-0' : 'opacity-100'}`}>
+                            TESORO
+                        </span>
+                    </div>
+                </div>
+                <p className="mt-2 handwritten text-[#e91e63] font-bold bg-white/60 px-2 rounded">
+                    {isCollecting ? "¡Recogiendo...!" : "Toca para Guardar"}
                 </p>
             </div>
         );
@@ -275,6 +303,7 @@
             const [error, setError] = useState(false);
             const [isPlaying, setIsPlaying] = useState(false);
             const [isInvoking, setIsInvoking] = useState(false); // Estado para la animación de la espiral
+            const [isCollecting, setIsCollecting] = useState(false);
             const audioRef = useRef(null);
             const SECRET_CODE = "GURU"; 
 
@@ -329,12 +358,27 @@
             };
 
             const handleSecondDownload = () => {
-                setStage('closed');
-                setIsPlaying(false);
-                if(audioRef.current) {
-                    audioRef.current.pause();
-                    audioRef.current.currentTime = 0;
-                }
+                if (isCollecting) return;
+                setIsCollecting(true);
+
+                setTimeout(() => {
+                    // Descarga del segundo archivo
+                    const link = document.createElement('a');
+                    link.href = FILE_BONUS; 
+                    link.setAttribute('download', FILE_BONUS);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Cerrar libro
+                    setStage('closed');
+                    setIsPlaying(false);
+                    setIsCollecting(false);
+                    if(audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current.currentTime = 0;
+                    }
+                }, 1500);
             };
 
             return (
@@ -358,18 +402,14 @@
                         {['scene1', 'password', 'scene2'].includes(stage) && (
                             <div className="book-grid animate-[fadeIn_1s_ease-out]">
                                 
-                                {/* CASO ESPECIAL: ESCENA 1 (INVOCACIÓN)
-                                    Ocupa TODO el ancho del libro (col-span-2)
-                                */}
+                                {/* CASO ESPECIAL: ESCENA 1 (INVOCACIÓN) - COLUMNA DOBLE */}
                                 {stage === 'scene1' && (
                                     <div className="col-span-2 flex flex-col items-center justify-center h-full">
                                         <InvocationSpiral onClick={handleSpiralClick} isInvoking={isInvoking} />
                                     </div>
                                 )}
 
-                                {/* RESTO DE ESCENAS (PASSWORD Y FINAL)
-                                    Mantiene la estructura de 2 columnas
-                                */}
+                                {/* RESTO DE ESCENAS (PASSWORD Y FINAL) */}
                                 {stage !== 'scene1' && (
                                     <>
                                         {/* IZQUIERDA */}
@@ -417,16 +457,16 @@
                                                 </div>
                                             )}
                                             {stage === 'scene2' && (
-                                                <>
+                                                <div className="w-full h-full flex flex-col items-center justify-center">
                                                     <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
-                                                    <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full">
+                                                    <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full max-w-xs">
                                                         <p className="font-bold text-[#880e4f] text-sm">♫ BGM: Circle of Love</p>
                                                         <TypewriterText text="El viaje continúa..." className="handwritten text-xs mt-1" delay={80}/>
                                                     </div>
-                                                    <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-3 rounded shadow-lg flex justify-center gap-2 animate-pulse">
-                                                        <DownloadIcon /> OBTENER TESORO
-                                                    </button>
-                                                </>
+                                                    
+                                                    {/* NUEVA ESPIRAL FINAL EN LUGAR DE BOTÓN */}
+                                                    <FinalSpiral onClick={handleSecondDownload} isCollecting={isCollecting} />
+                                                </div>
                                             )}
                                         </div>
                                     </>
