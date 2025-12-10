@@ -188,33 +188,35 @@
         const InvocationSpiral = ({ onClick, isInvoking }) => (
             <div 
                 onClick={onClick} 
-                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isInvoking ? 'scale-110' : 'hover:scale-105'}`}
+                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isInvoking ? 'scale-125' : 'hover:scale-110'}`}
             >
-                <div className="relative w-32 h-32 md:w-40 md:h-40">
+                <div className="relative w-64 h-64 md:w-80 md:h-80">
                     {/* Espiral Giratoria SVG */}
                     <svg 
                         viewBox="0 0 100 100" 
-                        className={`w-full h-full text-[#d63031] drop-shadow-md ${isInvoking ? 'animate-[spin_0.3s_linear_infinite]' : 'animate-[spin_4s_linear_infinite]'}`}
+                        className={`w-full h-full text-[#d63031] drop-shadow-xl ${isInvoking ? 'animate-[spin_0.3s_linear_infinite]' : 'animate-[spin_8s_linear_infinite]'}`}
                         fill="none" 
                         stroke="currentColor" 
-                        strokeWidth="6" 
+                        strokeWidth="4" 
                         strokeLinecap="round"
                     >
-                        {/* Espiral estilo Guru Guru */}
-                        <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" />
-                        <path d="M50 50 L50 20" strokeWidth="4" className={isInvoking ? 'opacity-0' : 'opacity-100'} />
+                        {/* Espiral Mágica Compleja */}
+                        <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" opacity="0.8"/>
+                        <path d="M50 50 m 0 -2 a 2 2 0 1 0 0 4 a 2 2 0 1 0 0 -4" fill="currentColor" />
+                        {/* Rayos decorativos */}
+                        <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" strokeWidth="2" opacity="0.6"/>
                     </svg>
                     
                     {/* Texto central */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-[#4a0e4e] bg-white/80 px-2 rounded backdrop-blur-sm transition-opacity ${isInvoking ? 'opacity-0' : 'opacity-100'}`}>
+                        <span className={`font-bold text-2xl text-[#4a0e4e] bg-white/90 px-4 py-1 rounded-full backdrop-blur-md shadow-lg transition-opacity border-2 border-[#d63031] ${isInvoking ? 'opacity-0' : 'opacity-100'}`}>
                             INVOCAR
                         </span>
                     </div>
                 </div>
                 
-                <p className={`mt-2 handwritten text-sm text-[#d63031] font-bold ${isInvoking ? 'animate-pulse' : ''}`}>
-                    {isInvoking ? "¡INVOCANDO...!" : "Toca la espiral"}
+                <p className={`mt-4 handwritten text-xl text-[#d63031] font-bold text-center bg-white/60 px-4 py-1 rounded ${isInvoking ? 'animate-pulse' : ''}`}>
+                    {isInvoking ? "¡INVOCANDO MAGIA...!" : "Toca el Círculo Mágico"}
                 </p>
             </div>
         );
@@ -356,69 +358,79 @@
                         {['scene1', 'password', 'scene2'].includes(stage) && (
                             <div className="book-grid animate-[fadeIn_1s_ease-out]">
                                 
-                                {/* IZQUIERDA */}
-                                <div className="flex flex-col items-center justify-center text-center p-4">
-                                    {(stage === 'scene1' || stage === 'password') && (
-                                        <>
-                                            <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-4 rotate-[-2deg] shadow-lg">
-                                                <span className="text-xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
-                                            </div>
-                                            <div className="flex gap-4 mb-4">
-                                                <div className="flex flex-col items-center bounce-char">
-                                                    <img src={IMG_NIKE} onError={(e)=>e.target.src=FALLBACK_NIKE} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
-                                                    <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">NIKE</span>
-                                                </div>
-                                                <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
-                                                    <img src={IMG_KUKURI} onError={(e)=>e.target.src=FALLBACK_KUKURI} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
-                                                    <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">KUKURI</span>
-                                                </div>
-                                            </div>
-                                            <div className="bg-white/60 px-3 py-2 rounded rotate-1">
-                                                <TypewriterText text="&quot;¡La aventura musical comienza!&quot;" className="handwritten text-xl text-gray-800 font-bold" />
-                                            </div>
-                                        </>
-                                    )}
-                                    {stage === 'scene2' && (
-                                        <>
-                                            <TreasureChest />
-                                            <h3 className="text-4xl font-bold text-[#d63031] mt-2 font-serif drop-shadow-md">LEVEL UP!</h3>
-                                        </>
-                                    )}
-                                </div>
+                                {/* CASO ESPECIAL: ESCENA 1 (INVOCACIÓN)
+                                    Ocupa TODO el ancho del libro (col-span-2)
+                                */}
+                                {stage === 'scene1' && (
+                                    <div className="col-span-2 flex flex-col items-center justify-center h-full">
+                                        <InvocationSpiral onClick={handleSpiralClick} isInvoking={isInvoking} />
+                                    </div>
+                                )}
 
-                                {/* DERECHA */}
-                                <div className="flex flex-col items-center justify-center text-center p-4">
-                                    {stage === 'scene1' && (
-                                        <>
-                                            {/* Aquí está la nueva espiral en lugar del texto y botón */}
-                                            <InvocationSpiral onClick={handleSpiralClick} isInvoking={isInvoking} />
-                                        </>
-                                    )}
-                                    {stage === 'password' && (
-                                        <div className="w-full max-w-xs">
-                                            <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
-                                            <TypewriterText text="¡Di la palabra secreta!" className="handwritten text-lg mb-4 text-[#d63031] font-bold" />
-                                            <form onSubmit={handlePasswordSubmit} className="w-full space-y-2">
-                                                <input type="text" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="CÓDIGO..." className="rpg-input w-full px-4 py-2 text-center text-xl font-bold uppercase outline-none rounded"/>
-                                                {error && <p className="text-red-500 font-bold text-sm animate-bounce">¡INCORRECTO!</p>}
-                                                <button type="submit" className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-2 rounded shadow text-lg">INVOCAR</button>
-                                            </form>
-                                            <div className="mt-4 text-xs text-gray-500 bg-white/70 p-1 rounded">Pista: Nombre de la tribu...</div>
+                                {/* RESTO DE ESCENAS (PASSWORD Y FINAL)
+                                    Mantiene la estructura de 2 columnas
+                                */}
+                                {stage !== 'scene1' && (
+                                    <>
+                                        {/* IZQUIERDA */}
+                                        <div className="flex flex-col items-center justify-center text-center p-4">
+                                            {stage === 'password' && (
+                                                <>
+                                                    <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-4 rotate-[-2deg] shadow-lg">
+                                                        <span className="text-xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
+                                                    </div>
+                                                    <div className="flex gap-4 mb-4">
+                                                        <div className="flex flex-col items-center bounce-char">
+                                                            <img src={IMG_NIKE} onError={(e)=>e.target.src=FALLBACK_NIKE} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
+                                                            <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">NIKE</span>
+                                                        </div>
+                                                        <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
+                                                            <img src={IMG_KUKURI} onError={(e)=>e.target.src=FALLBACK_KUKURI} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
+                                                            <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">KUKURI</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-white/60 px-3 py-2 rounded rotate-1">
+                                                        <TypewriterText text="&quot;¡La aventura musical comienza!&quot;" className="handwritten text-xl text-gray-800 font-bold" />
+                                                    </div>
+                                                </>
+                                            )}
+                                            {stage === 'scene2' && (
+                                                <>
+                                                    <TreasureChest />
+                                                    <h3 className="text-4xl font-bold text-[#d63031] mt-2 font-serif drop-shadow-md">LEVEL UP!</h3>
+                                                </>
+                                            )}
                                         </div>
-                                    )}
-                                    {stage === 'scene2' && (
-                                        <>
-                                            <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
-                                            <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full">
-                                                <p className="font-bold text-[#880e4f] text-sm">♫ BGM: Circle of Love</p>
-                                                <TypewriterText text="El viaje continúa..." className="handwritten text-xs mt-1" delay={80}/>
-                                            </div>
-                                            <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-3 rounded shadow-lg flex justify-center gap-2 animate-pulse">
-                                                <DownloadIcon /> OBTENER TESORO
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
+
+                                        {/* DERECHA */}
+                                        <div className="flex flex-col items-center justify-center text-center p-4">
+                                            {stage === 'password' && (
+                                                <div className="w-full max-w-xs">
+                                                    <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
+                                                    <TypewriterText text="¡Di la palabra secreta!" className="handwritten text-lg mb-4 text-[#d63031] font-bold" />
+                                                    <form onSubmit={handlePasswordSubmit} className="w-full space-y-2">
+                                                        <input type="text" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="CÓDIGO..." className="rpg-input w-full px-4 py-2 text-center text-xl font-bold uppercase outline-none rounded"/>
+                                                        {error && <p className="text-red-500 font-bold text-sm animate-bounce">¡INCORRECTO!</p>}
+                                                        <button type="submit" className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-2 rounded shadow text-lg">INVOCAR</button>
+                                                    </form>
+                                                    <div className="mt-4 text-xs text-gray-500 bg-white/70 p-1 rounded">Pista: Nombre de la tribu...</div>
+                                                </div>
+                                            )}
+                                            {stage === 'scene2' && (
+                                                <>
+                                                    <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
+                                                    <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full">
+                                                        <p className="font-bold text-[#880e4f] text-sm">♫ BGM: Circle of Love</p>
+                                                        <TypewriterText text="El viaje continúa..." className="handwritten text-xs mt-1" delay={80}/>
+                                                    </div>
+                                                    <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-3 rounded shadow-lg flex justify-center gap-2 animate-pulse">
+                                                        <DownloadIcon /> OBTENER TESORO
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
 
                             </div>
                         )}
