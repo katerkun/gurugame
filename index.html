@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Lock, Music } from 'lucide-react'; // Usamos lucide-react si está disponible, o SVGs inline como fallback
+import { Download, Lock, Music } from 'lucide-react';
 
 // --- RUTAS DE ARCHIVOS EN LA RAÍZ ---
 const IMG_CLOSED = "librocerrado.png"; 
@@ -55,11 +55,12 @@ const globalStyles = `
       transition: background-image 1s ease-in-out;
   }
 
+  /* --- CAJA DEL LIBRO (3072x1728) --- */
   .aspect-ratio-box {
       position: relative;
       width: 100%;
-      max-width: 1344px;
-      aspect-ratio: 1344 / 768;
+      max-width: 3072px; /* Ancho actualizado */
+      aspect-ratio: 3072 / 1728; /* Proporción actualizada */
       max-height: 100vh;
       display: flex;
       align-items: center;
@@ -372,7 +373,8 @@ const TreasureChest = () => (
     </svg>
 );
 
-const App = () => {
+// --- APP PRINCIPAL ---
+export default function App() {
     const [stage, setStage] = useState('closed'); 
     const [password, setPassword] = useState('');
     const [error, setError] = useState(false);
@@ -513,10 +515,4 @@ const App = () => {
             )}
         </div>
     );
-};
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-    </script>
-</body>
-</html>
+}
