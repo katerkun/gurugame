@@ -67,7 +67,6 @@
             align-items: center;
             justify-content: center;
             z-index: 10;
-            /* Sombra para resaltar el libro del fondo */
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
@@ -172,14 +171,52 @@
         const IMG_NIKE = "nike.png"; 
         const IMG_KUKURI = "kukuri.png"; 
         const AUDIO_BGM = "bgm.mp3"; 
+        
+        // Archivo a descargar (en la raíz)
+        const FILE_TO_DOWNLOAD = "CircleOfLove_Demo.zip";
 
-        // URLs de respaldo solo para previsualización (el usuario las reemplazará al subir al repo)
+        // URLs de respaldo solo para previsualización
         const FALLBACK_NIKE = "http://googleusercontent.com/image_generation_content/0";
         const FALLBACK_KUKURI = "http://googleusercontent.com/image_generation_content/1";
 
         // --- COMPONENTES ---
         const DownloadIcon = () => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        );
+
+        // NUEVA ESPIRAL DE INVOCACIÓN (Sustituye al botón)
+        const InvocationSpiral = ({ onClick, isInvoking }) => (
+            <div 
+                onClick={onClick} 
+                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isInvoking ? 'scale-110' : 'hover:scale-105'}`}
+            >
+                <div className="relative w-32 h-32 md:w-40 md:h-40">
+                    {/* Espiral Giratoria SVG */}
+                    <svg 
+                        viewBox="0 0 100 100" 
+                        className={`w-full h-full text-[#d63031] drop-shadow-md ${isInvoking ? 'animate-[spin_0.3s_linear_infinite]' : 'animate-[spin_4s_linear_infinite]'}`}
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="6" 
+                        strokeLinecap="round"
+                    >
+                        {/* Espiral estilo Guru Guru */}
+                        <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" />
+                        <path d="M50 50 L50 20" strokeWidth="4" className={isInvoking ? 'opacity-0' : 'opacity-100'} />
+                    </svg>
+                    
+                    {/* Texto central */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className={`font-bold text-[#4a0e4e] bg-white/80 px-2 rounded backdrop-blur-sm transition-opacity ${isInvoking ? 'opacity-0' : 'opacity-100'}`}>
+                            INVOCAR
+                        </span>
+                    </div>
+                </div>
+                
+                <p className={`mt-2 handwritten text-sm text-[#d63031] font-bold ${isInvoking ? 'animate-pulse' : ''}`}>
+                    {isInvoking ? "¡INVOCANDO...!" : "Toca la espiral"}
+                </p>
+            </div>
         );
 
         const TypewriterText = ({ text, delay = 40, className }) => {
@@ -235,6 +272,7 @@
             const [password, setPassword] = useState('');
             const [error, setError] = useState(false);
             const [isPlaying, setIsPlaying] = useState(false);
+            const [isInvoking, setIsInvoking] = useState(false); // Estado para la animación de la espiral
             const audioRef = useRef(null);
             const SECRET_CODE = "GURU"; 
 
@@ -244,15 +282,8 @@
                 if (isPlaying && audioRef.current) {
                     audioRef.current.volume = 0.3;
                     const playPromise = audioRef.current.play();
-                    
                     if (playPromise !== undefined) {
-                        playPromise
-                            .then(_ => {
-                                // Reproducción iniciada
-                            })
-                            .catch(error => {
-                                console.log("Auto-play prevented or file not found:", error);
-                            });
+                        playPromise.catch(error => console.log("Audio autoplay block"));
                     }
                 }
             }, [isPlaying]);
@@ -265,11 +296,25 @@
                 }
             };
 
-            const handleFirstDownload = () => {
-                const link = document.createElement('a');
-                link.href = '#'; 
-                link.setAttribute('download', 'CircleOfLove_Demo.zip');
-                setTimeout(() => setStage('password'), 800);
+            const handleSpiralClick = () => {
+                if (isInvoking) return; // Evitar doble clic
+                
+                setIsInvoking(true); // Empieza a girar rápido
+                
+                // Simula el tiempo de "invocación"
+                setTimeout(() => {
+                    // Crear enlace de descarga
+                    const link = document.createElement('a');
+                    link.href = FILE_TO_DOWNLOAD; // Archivo en la raíz
+                    link.setAttribute('download', FILE_TO_DOWNLOAD);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Pasar a la siguiente escena
+                    setStage('password');
+                    setIsInvoking(false);
+                }, 1500); // 1.5 segundos de giro mágico
             };
 
             const handlePasswordSubmit = (e) => {
@@ -345,11 +390,8 @@
                                 <div className="flex flex-col items-center justify-center text-center p-4">
                                     {stage === 'scene1' && (
                                         <>
-                                            <h2 className="text-3xl mb-2 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e]">Capítulo 1</h2>
-                                            <p className="text-sm text-gray-600 mb-6 font-bold uppercase tracking-widest">Spiral Dreamer Arc</p>
-                                            <button onClick={handleFirstDownload} className="rpg-btn text-white text-xl px-8 py-3 rounded shadow-lg flex items-center gap-2">
-                                                <DownloadIcon /> DESCARGAR
-                                            </button>
+                                            {/* Aquí está la nueva espiral en lugar del texto y botón */}
+                                            <InvocationSpiral onClick={handleSpiralClick} isInvoking={isInvoking} />
                                         </>
                                     )}
                                     {stage === 'password' && (
