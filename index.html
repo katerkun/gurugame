@@ -19,26 +19,35 @@
 
         body {
             font-family: 'VT323', monospace;
-            background-color: #2a1b3d;
-            background-image: 
-                radial-gradient(#44315f 15%, transparent 16%),
-                radial-gradient(#44315f 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
+            background-color: #1a1a2e;
             overflow: hidden;
             margin: 0;
             padding: 0;
             color: var(--color-text);
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="black" stroke-width="2"><path d="M5.5 3.21l10.8 15.65-5.6.57L8.5 24l-3.2-1.6 2-4.4L2 17.4z"/></svg>'), auto; 
         }
 
         .handwritten {
             font-family: 'Indie Flower', cursive;
         }
 
-        /* Contenedor de la escena */
+        /* --- FONDO INMERSIVO (BLUR) --- */
+        /* Esto hace que la imagen ocupe toda la pantalla detrás, borrosa */
+        .immersive-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(15px) brightness(0.5);
+            transform: scale(1.1); /* Escalar un poco para evitar bordes blancos por el blur */
+            z-index: 0;
+            transition: background-image 1s ease-in-out;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
         .scene-container {
-            transition: all 1s ease-in-out;
             position: relative;
             width: 100vw;
             height: 100vh;
@@ -48,81 +57,54 @@
             overflow: hidden;
         }
 
-        /* Contenedor con Aspect Ratio Fijo (1344 / 768 = 1.75) */
-        /* Esto asegura que el contenido siempre coincida con la imagen de fondo */
+        /* --- CAJA DEL LIBRO (1344x768 EXACTOS) --- */
+        /* Esta caja mantiene la proporción perfecta del libro */
         .aspect-ratio-box {
             position: relative;
             width: 100%;
-            max-width: 1344px;
-            aspect-ratio: 1344 / 768;
+            max-width: 1344px; /* Ancho real de tu imagen */
+            aspect-ratio: 1344 / 768; /* Proporción exacta */
             max-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Sombra para que el libro resalte */
         }
 
-        /* Imágenes de fondo */
-        .bg-image {
+        /* Imágenes dentro de la caja */
+        .book-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: none; /* Ajusta sin recortar */
-            transition: opacity 1s ease-in-out;
-            pointer-events: none;
+            object-fit: contain;
+            transition: opacity 0.8s ease-in-out;
         }
 
-        .bg-interactive {
-            pointer-events: auto;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .bg-interactive:hover {
-            transform: scale(1.02);
-            filter: drop-shadow(0 0 15px rgba(255, 235, 59, 0.5));
+        /* Grid invisible para posicionar contenido en las páginas */
+        /* Ajustado visualmente para un libro abierto estándar */
+        .book-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Dos páginas */
+            width: 86%;  /* Ajuste horizontal: deja márgenes a los lados */
+            height: 78%; /* Ajuste vertical: deja márgenes arriba/abajo */
+            column-gap: 4%; /* Espacio del lomo del libro */
+            position: relative;
+            z-index: 20;
         }
 
-        /* Animación suave de flotación */
-        .float-book {
-            animation: floatBook 6s ease-in-out infinite;
-        }
+        /* Interactividad */
+        .cursor-pointer { cursor: pointer; }
         
+        /* Animaciones */
+        .float-book { animation: floatBook 6s ease-in-out infinite; }
         @keyframes floatBook {
             0%, 100% { transform: translateY(0%); }
-            50% { transform: translateY(-2%); }
+            50% { transform: translateY(-1%); }
         }
 
-        /* Botones y UI */
-        .rpg-btn {
-            background: #3b82f6;
-            border: 4px solid #1d4ed8;
-            box-shadow: inset -4px -4px 0px rgba(0,0,0,0.3), inset 4px 4px 0px rgba(255,255,255,0.3);
-            image-rendering: pixelated;
-            transition: all 0.1s;
-            cursor: pointer;
-        }
-        .rpg-btn:active {
-            transform: translateY(2px);
-            box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.3);
-        }
-        .rpg-btn:hover { filter: brightness(1.1); }
-
-        .rpg-input {
-            border: 4px solid #4a0e4e;
-            background: #fff;
-            box-shadow: inset 4px 4px 0px rgba(0,0,0,0.1);
-        }
-        
-        .bounce-char {
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        /* Partículas Mágicas */
         .sparkle {
             position: absolute;
             color: #FFD700;
@@ -137,41 +119,44 @@
             20% { opacity: 1; }
             100% { transform: scale(1.2) translate(var(--tx), var(--ty)) rotate(45deg); opacity: 0; }
         }
-        
-        /* Grid del Libro - Ajustado para la imagen 1344x768 */
-        /* Asumimos que el libro tiene márgenes en la imagen, así que reducimos el área interactiva */
-        .book-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            width: 82%; /* Ancho útil dentro de la imagen */
-            height: 70%; /* Alto útil dentro de la imagen */
-            position: relative;
-            z-index: 10;
-            margin-top: 2%; /* Ajuste fino vertical si el libro no está perfectamente centrado en la imagen */
+
+        .bounce-char { animation: bounce 2s infinite; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
-        
-        /* Ajuste para móviles: Mantiene la proporción pero stackea verticalmente si es muy estrecho */
+
+        /* UI Elements */
+        .rpg-btn {
+            background: #3b82f6;
+            border: 3px solid #1d4ed8;
+            box-shadow: inset 3px 3px 0px rgba(255,255,255,0.3), inset -3px -3px 0px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+        .rpg-btn:active { transform: translateY(2px); box-shadow: none; }
+        .rpg-btn:hover { filter: brightness(1.1); }
+        .rpg-input {
+            border: 3px solid #4a0e4e;
+            background: #fff;
+            box-shadow: inset 3px 3px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Responsive: En móviles, apilamos el contenido verticalmente si es necesario */
         @media (max-width: 768px) {
             .aspect-ratio-box {
+                width: 95%;
+                aspect-ratio: auto;
+                height: auto;
+                background: rgba(255,255,255,0.9);
+                border-radius: 10px;
+                padding: 10px;
+            }
+            .book-image { display: none; /* Ocultamos el libro en móvil vertical para legibilidad */ }
+            .book-grid {
                 width: 100%;
                 height: auto;
-                aspect-ratio: auto; /* En móviles dejamos que fluya */
-            }
-            .book-grid {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto auto;
-                height: auto;
-                width: 90%;
                 gap: 20px;
-                background: rgba(255, 255, 255, 0.9); /* Fondo semitransparente para legibilidad en móvil */
-                padding: 20px;
-                border-radius: 10px;
-                border: 4px solid #4a0e4e;
-                margin-top: 0;
-            }
-            /* Ocultamos la imagen de fondo del libro abierto en móvil si se ve mal verticalmente */
-            .mobile-hide-bg {
-                display: none;
             }
         }
     </style>
@@ -182,80 +167,63 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- RUTAS DE ARCHIVOS ---
+        // ---IMÁGENES ---
         const IMG_CLOSED = "librocerrado.png"; 
         const IMG_OPENING = "libroabierto.png"; 
-        const IMG_OPEN_BOOK = "libro.png"; 
-        const IMG_NIKE = "http://googleusercontent.com/image_generation_content/0"; 
-        const IMG_KUKURI = "http://googleusercontent.com/image_generation_content/1"; 
-        
+        const IMG_OPEN_BOOK = "libro.png"; // Fondo transparente o con el libro vacío 1344x768
+        const IMG_NIKE = "nike.png"; 
+        const IMG_KUKURI = "kukuri.png"; 
         const AUDIO_BGM = "bgm.mp3"; 
 
-        // --- COMPONENTES UI ---
+        // --- COMPONENTES ---
         const DownloadIcon = () => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         );
 
-        const TypewriterText = ({ text, delay = 50, className }) => {
+        const TypewriterText = ({ text, delay = 40, className }) => {
             const [displayText, setDisplayText] = useState('');
-            
             useEffect(() => {
-                let i = 0;
-                setDisplayText('');
+                let i = 0; setDisplayText('');
                 const timer = setInterval(() => {
-                    if (i < text.length) {
-                        setDisplayText(prev => prev + text.charAt(i));
-                        i++;
-                    } else {
-                        clearInterval(timer);
-                    }
+                    if (i < text.length) { setDisplayText(p => p + text.charAt(i)); i++; } 
+                    else clearInterval(timer);
                 }, delay);
                 return () => clearInterval(timer);
-            }, [text, delay]);
-
+            }, [text]);
             return <p className={className}>{displayText}</p>;
         };
 
         const Sparkles = () => {
-            const items = ['✨', '✦', '♪', '♫', '★'];
-            const sparkles = Array.from({ length: 20 }).map((_, i) => ({
+            const sparkles = Array.from({ length: 15 }).map((_, i) => ({
                 id: i,
-                left: 20 + Math.random() * 60 + '%',
-                top: 10 + Math.random() * 60 + '%',
-                tx: (Math.random() - 0.5) * 150 + 'px',
-                ty: (Math.random() - 1) * 150 + 'px',
-                delay: Math.random() * 3 + 's',
-                content: items[Math.floor(Math.random() * items.length)],
+                left: 10 + Math.random() * 80 + '%',
+                top: 10 + Math.random() * 80 + '%',
+                tx: (Math.random() - 0.5) * 100 + 'px',
+                ty: (Math.random() - 1) * 100 + 'px',
+                delay: Math.random() * 2 + 's',
                 color: Math.random() > 0.5 ? '#FFD700' : '#FF69B4',
-                size: Math.random() * 10 + 10 + 'px'
+                size: Math.random() * 12 + 8 + 'px'
             }));
-
             return (
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-30">
                     {sparkles.map(s => (
                         <div key={s.id} className="sparkle" style={{
-                            left: s.left, top: s.top, 
-                            '--tx': s.tx, '--ty': s.ty, 
-                            animationDelay: s.delay,
-                            color: s.color,
-                            fontSize: s.size
-                        }}>
-                            {s.content}
-                        </div>
+                            left: s.left, top: s.top, '--tx': s.tx, '--ty': s.ty, 
+                            animationDelay: s.delay, color: s.color, fontSize: s.size
+                        }}>✨</div>
                     ))}
                 </div>
             );
         };
 
         const TreasureChest = () => (
-             <svg className="bounce-char mx-auto" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+             <svg className="bounce-char mx-auto drop-shadow-md" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 50 L80 50 L75 80 L25 80 Z" fill="#FBC02D" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
                 <path d="M15 40 Q50 20 85 40 L80 50 L20 50 Z" fill="#FDD835" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
                 <circle cx="50" cy="55" r="6" fill="#2d1b2e"/>
                 <circle cx="50" cy="55" r="3" fill="#F44336"/>
                 <path d="M30 40 L35 30 L40 40 Z" fill="#00E676" />
                 <path d="M60 40 L65 25 L70 40 Z" fill="#2979FF" />
-                <path d="M45 40 L50 20 L55 40 Z" fill="#FF4081" />
             </svg>
         );
 
@@ -268,10 +236,13 @@
             const audioRef = useRef(null);
             const SECRET_CODE = "GURU"; 
 
+            // Determinar qué imagen mostrar en el fondo borroso
+            const currentBg = stage === 'closed' ? IMG_CLOSED : (stage === 'opening' ? IMG_OPENING : IMG_OPEN_BOOK);
+
             useEffect(() => {
                 if (isPlaying && audioRef.current) {
                     audioRef.current.volume = 0.3;
-                    audioRef.current.play().catch(e => console.log("Audio block:", e));
+                    audioRef.current.play().catch(e => console.log("Audio autoplay block"));
                 }
             }, [isPlaying]);
 
@@ -284,20 +255,18 @@
             };
 
             const handleFirstDownload = () => {
+                // Simulación descarga
                 const link = document.createElement('a');
-                link.href = '#'; 
-                link.setAttribute('download', 'CircleOfLove_Demo.zip');
+                link.href = '#'; link.setAttribute('download', 'demo.zip'); // link.click();
                 setTimeout(() => setStage('password'), 800);
             };
 
             const handlePasswordSubmit = (e) => {
                 e.preventDefault();
                 if (password.toUpperCase() === SECRET_CODE) {
-                    setError(false);
-                    setStage('scene2');
+                    setError(false); setStage('scene2');
                 } else {
-                    setError(true);
-                    setTimeout(() => setError(false), 2000);
+                    setError(true); setTimeout(() => setError(false), 2000);
                 }
             };
 
@@ -314,132 +283,100 @@
                 <div className="scene-container">
                     <audio ref={audioRef} src={AUDIO_BGM} loop />
 
-                    {/* CONTENEDOR CON ASPECT RATIO FIJO 1344x768 */}
-                    <div className="aspect-ratio-box">
+                    {/* 1. FONDO INMERSIVO (Cubre toda la pantalla) */}
+                    <div className="immersive-bg" style={{ backgroundImage: `url(${currentBg})` }}></div>
+
+                    {/* 2. CAJA DEL LIBRO (Mantiene 1344x768) */}
+                    <div className="aspect-ratio-box float-book">
                         
-                        {/* FASE 1: INICIO */}
-                        <img 
-                            src={IMG_CLOSED} 
-                            className={`bg-image bg-interactive ${stage === 'closed' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}
-                            onClick={handleStart}
-                            alt="Start Adventure"
-                            onError={(e) => {e.target.style.display='none';}} 
-                        />
+                        {/* Capa de Imágenes del Libro */}
+                        <img src={IMG_CLOSED} className={`book-image ${stage === 'closed' ? 'opacity-100 cursor-pointer' : 'opacity-0 pointer-events-none'}`} onClick={handleStart} />
+                        <img src={IMG_OPENING} className={`book-image ${stage === 'opening' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
+                        <img src={IMG_OPEN_BOOK} className={`book-image ${['scene1','password','scene2'].includes(stage) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-                        {/* FASE 2: ABRIENDO */}
-                        <div className={`absolute inset-0 transition-opacity duration-1000 ${stage === 'opening' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}>
-                            <img src={IMG_OPENING} className="bg-image" alt="Magic Opening" />
-                            <Sparkles />
-                        </div>
+                        {/* Capa de Partículas */}
+                        {stage !== 'closed' && <Sparkles />}
 
-                        {/* FASE 3: LIBRO ABIERTO (Con flotación) */}
-                        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${['scene1', 'password', 'scene2'].includes(stage) ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
-                            
-                            <div className="relative w-full h-full flex items-center justify-center float-book">
-                                <img src={IMG_OPEN_BOOK} className="absolute inset-0 w-full h-full object-contain pointer-events-none mobile-hide-bg" alt="Background" />
-
-                                <div className="book-grid">
-                                    {/* PÁGINA IZQUIERDA */}
-                                    <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[-1deg]">
-                                        {(stage === 'scene1' || stage === 'password') && (
-                                            <div className="animate-[fadeIn_0.5s_ease-out]">
-                                                <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-6 rotate-[-2deg] inline-block shadow-md">
-                                                    <span className="text-xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
+                        {/* 3. CONTENIDO INTERACTIVO (Grid alineado a las páginas) */}
+                        {['scene1', 'password', 'scene2'].includes(stage) && (
+                            <div className="book-grid animate-[fadeIn_1s_ease-out]">
+                                
+                                {/* --- PÁGINA IZQUIERDA --- */}
+                                <div className="flex flex-col items-center justify-center text-center p-4">
+                                    {(stage === 'scene1' || stage === 'password') && (
+                                        <>
+                                            <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-4 rotate-[-2deg] shadow-lg">
+                                                <span className="text-xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
+                                            </div>
+                                            <div className="flex gap-4 mb-4">
+                                                <div className="flex flex-col items-center bounce-char">
+                                                    <img src={DEMO_NIKE} onError={(e)=>e.target.src=IMG_NIKE} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
+                                                    <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">NIKE</span>
                                                 </div>
-                                                
-                                                <div className="flex justify-center gap-4 mb-4">
-                                                    <div className="flex flex-col items-center bounce-char">
-                                                        <div className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md">
-                                                            <img src={IMG_NIKE} className="w-full h-full object-cover" alt="Nike" />
-                                                        </div>
-                                                        <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">NIKE</div>
-                                                    </div>
-                                                    <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
-                                                        <div className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md">
-                                                            <img src={IMG_KUKURI} className="w-full h-full object-cover" alt="Kukuri" />
-                                                        </div>
-                                                        <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">KUKURI</div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div className="mt-2 rotate-1 bg-white/50 px-2 rounded min-h-[30px]">
-                                                    <TypewriterText 
-                                                        text="&quot;¡Escucha la Miracle Melody!&quot;" 
-                                                        className="handwritten text-xl text-gray-700 font-bold" 
-                                                    />
+                                                <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
+                                                    <img src={DEMO_KUKURI} onError={(e)=>e.target.src=IMG_KUKURI} className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] bg-white object-cover"/>
+                                                    <span className="bg-[#2d1b2e] text-white text-xs px-2 mt-1 font-bold">KUKURI</span>
                                                 </div>
                                             </div>
-                                        )}
-
-                                        {stage === 'scene2' && (
-                                            <div className="animate-[fadeIn_0.5s_ease-out] relative">
-                                                <Sparkles />
-                                                <TreasureChest />
-                                                <h3 className="text-4xl font-bold text-[#d63031] drop-shadow-md mt-4 font-serif">LEVEL UP!</h3>
+                                            <div className="bg-white/60 px-3 py-2 rounded rotate-1">
+                                                <TypewriterText text="&quot;¡La aventura musical comienza!&quot;" className="handwritten text-xl text-gray-800 font-bold" />
                                             </div>
-                                        )}
-                                    </div>
-
-                                    {/* PÁGINA DERECHA */}
-                                    <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[1deg]">
-                                        {stage === 'scene1' && (
-                                            <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
-                                                <h2 className="text-3xl mb-2 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e] inline-block">Capítulo 1</h2>
-                                                <p className="text-sm text-gray-600 mb-6 font-bold uppercase tracking-widest">
-                                                    Spiral Dreamer Arc
-                                                </p>
-                                                <button onClick={handleFirstDownload} className="rpg-btn text-white text-xl px-6 py-4 w-full font-bold flex items-center justify-center gap-2 rounded-lg shadow-xl">
-                                                    <DownloadIcon /> DESCARGAR
-                                                </button>
-                                            </div>
-                                        )}
-
-                                        {stage === 'password' && (
-                                            <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
-                                                <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
-                                                <div className="min-h-[30px] mb-4">
-                                                    <TypewriterText 
-                                                        text="¡Di la palabra secreta!" 
-                                                        className="handwritten text-lg text-[#d63031] font-bold"
-                                                    />
-                                                </div>
-                                                <form onSubmit={handlePasswordSubmit} className="w-full">
-                                                    <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="CÓDIGO..." className="rpg-input w-full px-4 py-3 text-center text-2xl mb-4 font-bold uppercase text-[#4a0e4e] focus:outline-none focus:bg-yellow-50 rounded" />
-                                                    {error && <p className="text-red-500 font-bold animate-bounce mb-2 bg-white/80 rounded">¡INCORRECTO!</p>}
-                                                    <button type="submit" className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-3 text-xl rounded shadow-lg">INVOCAR</button>
-                                                </form>
-                                                <div className="mt-4 text-sm text-gray-500 bg-white/70 p-2 rounded rotate-1 shadow-sm border border-gray-200">
-                                                    <span className="font-bold">Pista:</span> Nombre de la tribu...
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {stage === 'scene2' && (
-                                            <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
-                                                <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
-                                                <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow-md rotate-[-1deg]">
-                                                    <p className="font-bold text-[#880e4f]">♫ BGM: Circle of Love</p>
-                                                    <TypewriterText 
-                                                        text="El viaje continúa..." 
-                                                        className="handwritten text-sm mt-1"
-                                                        delay={100}
-                                                    />
-                                                </div>
-                                                <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-4 text-xl flex items-center justify-center gap-2 animate-pulse rounded-lg shadow-xl">
-                                                    <DownloadIcon /> OBTENER TESORO
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </>
+                                    )}
+                                    {stage === 'scene2' && (
+                                        <>
+                                            <TreasureChest />
+                                            <h3 className="text-4xl font-bold text-[#d63031] mt-2 font-serif drop-shadow-md">LEVEL UP!</h3>
+                                        </>
+                                    )}
                                 </div>
+
+                                {/* --- PÁGINA DERECHA --- */}
+                                <div className="flex flex-col items-center justify-center text-center p-4">
+                                    {stage === 'scene1' && (
+                                        <>
+                                            <h2 className="text-3xl mb-2 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e]">Capítulo 1</h2>
+                                            <p className="text-sm text-gray-600 mb-6 font-bold uppercase tracking-widest">Spiral Dreamer Arc</p>
+                                            <button onClick={handleFirstDownload} className="rpg-btn text-white text-xl px-8 py-3 rounded shadow-lg flex items-center gap-2">
+                                                <DownloadIcon /> DESCARGAR
+                                            </button>
+                                        </>
+                                    )}
+                                    {stage === 'password' && (
+                                        <div className="w-full max-w-xs">
+                                            <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
+                                            <TypewriterText text="¡Di la palabra secreta!" className="handwritten text-lg mb-4 text-[#d63031] font-bold" />
+                                            <form onSubmit={handlePasswordSubmit} className="w-full space-y-2">
+                                                <input type="text" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="CÓDIGO..." className="rpg-input w-full px-4 py-2 text-center text-xl font-bold uppercase outline-none rounded"/>
+                                                {error && <p className="text-red-500 font-bold text-sm animate-bounce">¡INCORRECTO!</p>}
+                                                <button type="submit" className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-2 rounded shadow text-lg">INVOCAR</button>
+                                            </form>
+                                            <div className="mt-4 text-xs text-gray-500 bg-white/70 p-1 rounded">Pista: Nombre de la tribu...</div>
+                                        </div>
+                                    )}
+                                    {stage === 'scene2' && (
+                                        <>
+                                            <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
+                                            <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full">
+                                                <p className="font-bold text-[#880e4f] text-sm">♫ BGM: Circle of Love</p>
+                                                <TypewriterText text="El viaje continúa..." className="handwritten text-xs mt-1" delay={80}/>
+                                            </div>
+                                            <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-3 rounded shadow-lg flex justify-center gap-2 animate-pulse">
+                                                <DownloadIcon /> OBTENER TESORO
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+
                             </div>
-                        </div>
+                        )}
                     </div>
-                    
+
+                    {/* Mensaje flotante inicial */}
                     {stage === 'closed' && (
-                        <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none animate-bounce z-30">
-                            <span className="bg-black/50 text-white px-4 py-2 rounded-full text-lg font-bold backdrop-blur-sm border-2 border-white">
-                                Haz clic para comenzar la aventura
+                        <div className="absolute bottom-12 animate-bounce z-50 pointer-events-none">
+                            <span className="bg-black/60 text-white px-4 py-1 rounded-full text-sm font-bold backdrop-blur border border-white/50">
+                                Haz clic para abrir el grimorio
                             </span>
                         </div>
                     )}
