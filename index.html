@@ -71,16 +71,22 @@
 
         /* Portada Frontal - Estilo Grimoire Pop */
         .book-cover.front {
-            background: #ff6b6b;
-            background-image: radial-gradient(circle, #ff8e8e 10%, transparent 10%), radial-gradient(circle, #ff8e8e 10%, transparent 10%);
-            background-size: 20px 20px;
-            background-position: 0 0, 10px 10px;
+            /* El fondo ahora es manejado por el SVG, dejamos un color base por si acaso */
+            background: #d32f2f; 
             transform-origin: left;
             z-index: 20;
             transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Cursor pointer para indicar que es clickeable */
+            cursor: pointer;
+        }
+
+        /* Hover effect para el libro cerrado */
+        .book-closed .book-cover.front:hover {
+            transform: rotateY(-15deg) scale(1.02);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.3);
         }
 
         .book-spine {
@@ -127,6 +133,7 @@
 
         .book-open .book-cover.front {
             transform: rotateY(-180deg);
+            cursor: default; /* Ya no es clickeable para abrir cuando está abierto */
         }
 
         /* Botón RPG Retro */
@@ -190,6 +197,49 @@
         const MagicSpiral = ({ className }) => (
             <svg className={className} viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round">
                 <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" opacity="0.6"/>
+            </svg>
+        );
+
+        // --- IMAGEN DE PORTADA PERSONALIZADA ---
+        const GrimoireCover = () => (
+            <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="magic-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                         <circle cx="20" cy="20" r="2" fill="#b71c1c" opacity="0.5"/>
+                         <path d="M10 10 L30 30 M30 10 L10 30" stroke="#b71c1c" strokeWidth="1" opacity="0.2"/>
+                    </pattern>
+                </defs>
+                
+                {/* Fondo Base */}
+                <rect width="100%" height="100%" fill="#e53935" />
+                <rect width="100%" height="100%" fill="url(#magic-pattern)" />
+                
+                {/* Borde Dorado Decorativo */}
+                <rect x="5%" y="3%" width="90%" height="94%" rx="10" fill="none" stroke="#FFD700" strokeWidth="4" strokeDasharray="15, 10" />
+                <rect x="7%" y="4.5%" width="86%" height="91%" rx="8" fill="none" stroke="#FFD700" strokeWidth="2" />
+
+                {/* Esquinas Mágicas */}
+                <g fill="none" stroke="#FFD700" strokeWidth="3">
+                    {/* Arriba Izquierda */}
+                    <path d="M20 60 L20 20 L60 20" /> 
+                    <circle cx="30" cy="30" r="5" fill="#FFD700" stroke="none"/>
+                    
+                    {/* Arriba Derecha */}
+                    <path d="M-20 60 L-20 20 L-60 20" transform="scale(-1, 1) translate(-100%, 0)"/> 
+                    
+                    {/* Abajo Izquierda */}
+                    <path d="M20 -60 L20 -20 L60 -20" transform="scale(1, -1) translate(0, -100%)"/>
+                    
+                    {/* Abajo Derecha */}
+                    <path d="M-20 -60 L-20 -20 L-60 -20" transform="scale(-1, -1) translate(-100%, -100%)"/>
+                </g>
+
+                {/* Círculo Mágico Central de Fondo */}
+                <g transform="translate(50%, 50%)" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+                    <circle cx="0" cy="0" r="30%" fill="none" stroke="#FFD700" strokeWidth="2" opacity="0.3" />
+                    <path d="M-50 0 L50 0 M0 -50 L0 50" stroke="#FFD700" strokeWidth="1" opacity="0.3" />
+                    <rect x="-35" y="-35" width="70" height="70" transform="rotate(45)" fill="none" stroke="#FFD700" strokeWidth="1" opacity="0.3"/>
+                </g>
             </svg>
         );
 
@@ -260,8 +310,11 @@
             const SECRET_CODE = "GURU"; 
 
             const handleOpenBook = () => {
-                setStage('opening');
-                setTimeout(() => setStage('scene1'), 1200);
+                // Solo abre el libro si está cerrado. Evita re-trigger si ya está abierto.
+                if (stage === 'closed') {
+                    setStage('opening');
+                    setTimeout(() => setStage('scene1'), 1200);
+                }
             };
 
             const handleFirstDownload = () => {
@@ -296,7 +349,7 @@
                     {/* Contenedor Principal */}
                     <div className={`book-container relative flex justify-center items-center`}>
                         
-                        <div className={`book relative transition-all duration-1000 ${stage !== 'closed' && stage !== 'opening' && stage !== 'closing' ? 'translate-x-0' : ''}`}>
+                        <div className={`book ${stage === 'closed' ? 'book-closed' : 'book-open'} relative transition-all duration-1000 ${stage !== 'closed' && stage !== 'opening' && stage !== 'closing' ? 'translate-x-0' : ''}`}>
                             
                             {/* INTERIOR DEL GRIMOIRE */}
                             <div className="book-interior flex flex-col md:flex-row">
@@ -417,16 +470,24 @@
                             </div>
 
                             {/* PORTADA EXTERIOR (Estilo Grimoire) */}
-                            <div className={`book-cover front ${stage !== 'closed' ? 'open-book' : ''}`} style={{
-                                transform: (stage === 'closed' || stage === 'closing') ? 'rotateY(0deg)' : 'rotateY(-180deg)'
-                            }}>
-                                <div className="absolute left-0 top-0 bottom-0 w-8 bg-[#b71c1c] border-r-4 border-[#2d1b2e]"></div>
+                            {/* Ahora tiene onClick para abrirse solo al tocarlo */}
+                            <div 
+                                className={`book-cover front ${stage !== 'closed' ? 'open-book' : ''}`} 
+                                onClick={handleOpenBook}
+                                style={{
+                                    transform: (stage === 'closed' || stage === 'closing') ? 'rotateY(0deg)' : 'rotateY(-180deg)'
+                                }}
+                            >
+                                {/* Lomo del libro visible al girar ligeramente */}
+                                <div className="absolute left-0 top-0 bottom-0 w-8 bg-[#b71c1c] border-r-4 border-[#2d1b2e] z-0"></div>
                                 
-                                <div className="flex flex-col items-center justify-center w-full h-full p-8 text-center text-[#2d1b2e]">
+                                {/* Imagen de Portada Generada por SVG */}
+                                <GrimoireCover />
+
+                                <div className="flex flex-col items-center justify-center w-full h-full p-8 text-center text-[#2d1b2e] z-10 pointer-events-none">
                                     
-                                    {/* Círculo Mágico Decorativo en la portada */}
+                                    {/* Círculo Mágico Decorativo en la portada (superpuesto al SVG base) */}
                                     <div className="relative w-48 h-48 mb-6 flex items-center justify-center">
-                                        <div className="absolute inset-0 border-[6px] border-[#fff] rounded-full opacity-50"></div>
                                         <div className="absolute inset-2 border-[2px] border-[#fff] rounded-full opacity-80 border-dashed animate-[spin_20s_linear_infinite]"></div>
                                         <MagicSpiral className="text-white w-32 h-32 animate-[spin_8s_linear_infinite]" />
                                     </div>
@@ -439,12 +500,9 @@
                                     </div>
                                     
                                     {stage === 'closed' && (
-                                        <button 
-                                            onClick={handleOpenBook}
-                                            className="absolute bottom-12 rpg-btn bg-[#ffeb3b] border-[#fbc02d] text-[#2d1b2e] px-8 py-2 text-2xl font-bold animate-bounce"
-                                        >
-                                            PRESS START
-                                        </button>
+                                        <div className="absolute bottom-12 text-white font-bold animate-pulse text-lg bg-[#00000033] px-3 rounded">
+                                            Tap to Open
+                                        </div>
                                     )}
                                 </div>
                             </div>
