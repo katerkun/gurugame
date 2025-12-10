@@ -283,54 +283,40 @@
             </div>
         );
 
-        // 3. ESPIRAL FINAL (TESORO)
+        // 3. ESPIRAL FINAL GIGANTE (TESORO)
         const FinalSpiral = ({ onClick, isCollecting }) => (
             <div 
                 onClick={onClick} 
                 className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isCollecting ? 'scale-110 opacity-50' : 'hover:scale-105'}`}
             >
-                <div className="relative w-40 h-40">
+                <div className="relative w-64 h-64 md:w-80 md:h-80">
                     <svg 
                         viewBox="0 0 100 100" 
-                        className={`w-full h-full text-pink-500 drop-shadow-xl ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'}`}
+                        className={`w-full h-full text-pink-500 drop-shadow-[0_0_15px_rgba(255,105,180,0.8)] ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'}`}
                         fill="none" 
                         stroke="currentColor" 
                         strokeWidth="3" 
                         strokeLinecap="round"
                     >
+                        {/* Espiral con forma geométrica "Circle of Love" */}
                         <path d="M50 50 m 0 -5 a 5 5 0 1 0 0 10 a 10 10 0 1 0 0 -20 a 20 20 0 1 0 0 40 a 30 30 0 1 0 0 -60" opacity="0.8"/>
-                        <circle cx="50" cy="50" r="45" strokeDasharray="5,5" opacity="0.5" />
-                        <path d="M50 50 L50 10" strokeWidth="2" className="text-yellow-400" />
-                        <path d="M50 50 L90 50" strokeWidth="2" className="text-yellow-400" />
-                        <path d="M50 50 L10 50" strokeWidth="2" className="text-yellow-400" />
-                        <path d="M50 50 L50 90" strokeWidth="2" className="text-yellow-400" />
-                        <circle cx="50" cy="50" r="8" fill="#FFD700" />
+                        <circle cx="50" cy="50" r="45" strokeDasharray="5,5" opacity="0.5" stroke="#FFD700"/>
+                        {/* Rayos dorados del final */}
+                        <path d="M50 50 L50 10" strokeWidth="2" stroke="#FFD700" />
+                        <path d="M50 50 L90 50" strokeWidth="2" stroke="#FFD700" />
+                        <path d="M50 50 L10 50" strokeWidth="2" stroke="#FFD700" />
+                        <path d="M50 50 L50 90" strokeWidth="2" stroke="#FFD700" />
+                        <circle cx="50" cy="50" r="10" fill="#FFD700" className="animate-pulse"/>
                     </svg>
                     
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-lg text-white bg-pink-600/90 px-3 py-1 rounded-full shadow-lg border-2 border-white ${isCollecting ? 'opacity-0' : 'opacity-100'}`}>
+                        <span className={`font-bold text-3xl text-white bg-pink-600/90 px-6 py-2 rounded-full shadow-lg border-2 border-[#FFD700] tracking-widest ${isCollecting ? 'opacity-0' : 'opacity-100'}`}>
                             TESORO
                         </span>
                     </div>
                 </div>
-                <p className="mt-2 handwritten text-[#e91e63] font-bold bg-white/60 px-2 rounded">
-                    {isCollecting ? "¡Recogiendo...!" : "Toca para Guardar"}
-                </p>
             </div>
         );
-
-        const TypewriterText = ({ text, delay = 40, className }) => {
-            const [displayText, setDisplayText] = useState('');
-            useEffect(() => {
-                let i = 0; setDisplayText('');
-                const timer = setInterval(() => {
-                    if (i < text.length) { setDisplayText(p => p + text.charAt(i)); i++; } 
-                    else clearInterval(timer);
-                }, delay);
-                return () => clearInterval(timer);
-            }, [text]);
-            return <p className={className}>{displayText}</p>;
-        };
 
         const Sparkles = () => {
             const sparkles = Array.from({ length: 15 }).map((_, i) => ({
@@ -354,17 +340,6 @@
                 </div>
             );
         };
-
-        const TreasureChest = () => (
-             <svg className="bounce-char mx-auto drop-shadow-md" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 50 L80 50 L75 80 L25 80 Z" fill="#FBC02D" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
-                <path d="M15 40 Q50 20 85 40 L80 50 L20 50 Z" fill="#FDD835" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
-                <circle cx="50" cy="55" r="6" fill="#2d1b2e"/>
-                <circle cx="50" cy="55" r="3" fill="#F44336"/>
-                <path d="M30 40 L35 30 L40 40 Z" fill="#00E676" />
-                <path d="M60 40 L65 25 L70 40 Z" fill="#2979FF" />
-            </svg>
-        );
 
         // --- APP PRINCIPAL ---
         const App = () => {
@@ -485,29 +460,11 @@
                                     </div>
                                 )}
 
-                                {/* ESCENA 2: FINAL (2 COLUMNAS) */}
+                                {/* ESCENA 2: FINAL (FULL WIDTH - ESPIRAL DIFERENTE) */}
                                 {stage === 'scene2' && (
-                                    <>
-                                        {/* IZQUIERDA: TESORO */}
-                                        <div className="flex flex-col items-center justify-center text-center p-4">
-                                            <div className="animate-[fadeIn_0.5s_ease-out]">
-                                                <TreasureChest />
-                                                <h3 className="text-4xl font-bold text-[#d63031] mt-2 font-serif drop-shadow-md">LEVEL UP!</h3>
-                                            </div>
-                                        </div>
-
-                                        {/* DERECHA: DESCARGA FINAL */}
-                                        <div className="flex flex-col items-center justify-center text-center p-4">
-                                            <div className="w-full h-full flex flex-col items-center justify-center">
-                                                <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
-                                                <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow rotate-[-1deg] w-full max-w-xs">
-                                                    <p className="font-bold text-[#880e4f] text-sm">♫ BGM: Circle of Love</p>
-                                                    <TypewriterText text="El viaje continúa..." className="handwritten text-xs mt-1" delay={80}/>
-                                                </div>
-                                                <FinalSpiral onClick={handleSecondDownload} isCollecting={isCollecting} />
-                                            </div>
-                                        </div>
-                                    </>
+                                    <div className="col-span-2 flex flex-col items-center justify-center h-full">
+                                        <FinalSpiral onClick={handleSecondDownload} isCollecting={isCollecting} />
+                                    </div>
                                 )}
 
                             </div>
