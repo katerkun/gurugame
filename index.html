@@ -122,42 +122,6 @@
             50% { transform: translateY(-5px); }
         }
 
-        /* UI Elements */
-        .rpg-btn {
-            background: #3b82f6;
-            border: 3px solid #1d4ed8;
-            box-shadow: inset 3px 3px 0px rgba(255,255,255,0.3), inset -3px -3px 0px rgba(0,0,0,0.3);
-            transition: all 0.1s;
-        }
-        .rpg-btn:active { transform: translateY(2px); box-shadow: none; }
-        .rpg-btn:hover { filter: brightness(1.1); }
-        
-        /* Input estilo pergamino integrado en el sello */
-        .seal-input {
-            border: none;
-            border-bottom: 3px dashed #fff;
-            background: rgba(0, 0, 0, 0.3);
-            text-align: center;
-            font-family: 'VT323', monospace;
-            color: #fff;
-            font-weight: bold;
-            font-size: 2rem;
-            letter-spacing: 0.3em;
-            outline: none;
-            transition: all 0.3s;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .seal-input:focus {
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom-style: solid;
-            border-bottom-color: #FFD700;
-        }
-        .seal-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-            letter-spacing: normal;
-            font-size: 1.5rem;
-        }
-
         /* Input estilo Místico (sin caja) para el diseño decorado */
         .mystic-input {
             border: none;
@@ -224,9 +188,13 @@
         const FILE_DEMO = "CircleOfLove_Demo.zip";
         const FILE_BONUS = "CircleOfLove_Bonus.zip";
 
+        // URLs de respaldo (solo para visualización inicial si faltan las imágenes locales)
+        const FALLBACK_NIKE = "http://googleusercontent.com/image_generation_content/0";
+        const FALLBACK_KUKURI = "http://googleusercontent.com/image_generation_content/1";
+
         // --- COMPONENTES ---
         
-        // 1. ESPIRAL DE INVOCACIÓN (INICIO) - VERSIÓN GIGANTE Y DECORADA
+        // 1. ESPIRAL DE INVOCACIÓN (INICIO)
         const InvocationSpiral = ({ onClick, isInvoking }) => (
             <div 
                 onClick={onClick} 
@@ -270,16 +238,19 @@
             </div>
         );
 
-        // 2. COMPONENTE DEL SELLO MÁGICO GIGANTE (Full Page, sin caja)
+        // 2. COMPONENTE DEL SELLO MÁGICO GIGANTE (Full Page, sin caja, solo input)
         const FullMagicSeal = ({ password, setPassword, onSubmit, error }) => (
             <div className="relative w-full h-full flex flex-col items-center justify-center animate-[fadeIn_0.5s_ease-out]">
                 
-                {/* Fondo Mágico Rotatorio */}
+                {/* Fondo Mágico Rotatorio - AUMENTADO PARA CUBRIR MÁS */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                    <svg viewBox="0 0 200 200" className="w-[120%] h-[120%] text-[#4a0e4e] animate-[spin_60s_linear_infinite]">
+                    <svg viewBox="0 0 200 200" className="w-[220%] h-[220%] text-[#4a0e4e] animate-[spin_60s_linear_infinite]">
                         <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="5,5" />
                         <path d="M100 10 L190 100 L100 190 L10 100 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
                         <circle cx="100" cy="100" r="50" fill="none" stroke="#d63031" strokeWidth="1" opacity="0.5" />
+                        {/* Anillos extra para llenar espacio */}
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="currentColor" strokeWidth="0.2" />
+                        <circle cx="100" cy="100" r="110" fill="none" stroke="currentColor" strokeWidth="0.2" opacity="0.3" /> 
                     </svg>
                 </div>
 
@@ -314,12 +285,10 @@
                             </div>
                         )}
                         
-                        <button 
-                            type="submit" 
-                            className="mt-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#4a0e4e] text-2xl font-bold px-10 py-4 rounded-full hover:scale-110 hover:brightness-110 transition-all shadow-[0_0_30px_rgba(255,215,0,0.6)] flex items-center gap-3 border-2 border-white"
-                        >
-                            <span>🔮</span> ROMPER SELLO <span>🔮</span>
-                        </button>
+                        {/* INDICADOR DE AYUDA (SIN BOTÓN) */}
+                        <p className="text-white/70 text-sm tracking-widest font-bold mt-8 animate-pulse bg-black/30 px-4 py-2 rounded-full border border-white/10">
+                            [ PRESIONA ENTER PARA ROMPER EL SELLO ]
+                        </p>
                     </form>
                 </div>
             </div>
@@ -363,7 +332,7 @@
                     </svg>
                     
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-4xl text-white bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.3)] border-4 border-[#FFD700] tracking-widest transform transition-transform ${isCollecting ? 'scale-0' : 'scale-100'}`}>
+                        <span className={`font-bold text-3xl text-white bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.3)] border-4 border-[#FFD700] tracking-widest transform transition-transform ${isCollecting ? 'scale-0' : 'scale-100'}`}>
                             TESORO
                         </span>
                     </div>
