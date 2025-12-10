@@ -46,19 +46,18 @@
             justify-content: center;
         }
 
-        /* Imágenes de fondo para cada estado */
+        /* Imágenes de fondo */
         .bg-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Ajusta para ver la imagen completa sin recortar */
+            object-fit: contain;
             transition: opacity 1s ease-in-out;
             pointer-events: none;
         }
 
-        /* Clase interactiva para la primera imagen */
         .bg-interactive {
             pointer-events: auto;
             cursor: pointer;
@@ -66,9 +65,10 @@
         }
         .bg-interactive:hover {
             transform: scale(1.02);
+            filter: drop-shadow(0 0 15px rgba(255, 235, 59, 0.5));
         }
 
-        /* Botón RPG Retro */
+        /* Botones y UI */
         .rpg-btn {
             background: #3b82f6;
             border: 4px solid #1d4ed8;
@@ -81,10 +81,7 @@
             transform: translateY(2px);
             box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.3);
         }
-        
-        .rpg-btn:hover {
-            filter: brightness(1.1);
-        }
+        .rpg-btn:hover { filter: brightness(1.1); }
 
         .rpg-input {
             border: 4px solid #4a0e4e;
@@ -99,12 +96,25 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
         }
+
+        /* Partículas Mágicas */
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: sparkleAnim 2s infinite linear;
+            opacity: 0;
+        }
+        @keyframes sparkleAnim {
+            0% { transform: scale(0) translate(0, 0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.5) translate(var(--tx), var(--ty)); opacity: 0; }
+        }
         
-        /* Grid para el contenido del libro abierto */
+        /* Grid del Libro */
         .book-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            /* Ajustamos el tamaño del grid para que coincida con las páginas abiertas de la imagen */
             width: 80%; 
             max-width: 900px;
             height: 60%; 
@@ -120,9 +130,7 @@
                 height: 80%;
                 width: 90%;
             }
-            .bg-image {
-                object-fit: cover;
-            }
+            .bg-image { object-fit: cover; }
         }
     </style>
 </head>
@@ -130,38 +138,52 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        // --- IMÁGENES DE LOS ESTADOS DEL LIBRO ---
-        const IMG_CLOSED = "librocerrado.png"; // Fase 1: Personajes mirando libro
-        const IMG_OPENING = "libroabierto.png"; // Fase 2: Libro brillando
-        const IMG_OPEN_BOOK = "libro.png"; // Fase 3: Libro abierto vacío
+        // --- RUTAS DE ARCHIVOS (Asegúrate de que existan en tu GitHub) ---
+        // Estas rutas asumen que tienes una carpeta 'img' en tu repositorio.
+        const IMG_CLOSED = "./img/librocerrado.png"; 
+        const IMG_OPENING = "./img/libroabierto.png"; 
+        const IMG_OPEN_BOOK = "./img/libro.png"; 
+        // Mantengo los enlaces generados para los personajes por ahora para que veas algo si no has subido las imágenes aún
+        const IMG_NIKE = "http://googleusercontent.com/image_generation_content/0"; 
+        const IMG_KUKURI = "http://googleusercontent.com/image_generation_content/1"; 
+        
+        // ¡AGREGA TU MÚSICA AQUÍ!
+        const AUDIO_BGM = "./img/bgm.mp3"; // Sube un mp3 cortito a tu carpeta img
 
-        // --- ICONOS Y ASSETS ---
+        // --- COMPONENTES UI ---
         const DownloadIcon = () => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         );
 
-        // Avatares generados previamente
-        const NikeAvatar = () => (
-             <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group mx-auto">
-                <img 
-                    src="http://googleusercontent.com/image_generation_content/0" 
-                    alt="Nike" 
-                    className="w-full h-full object-cover"
-                />
-            </div>
-        );
+        const Sparkles = () => {
+            // Genera chispas aleatorias alrededor del libro
+            const sparkles = Array.from({ length: 15 }).map((_, i) => ({
+                id: i,
+                left: 20 + Math.random() * 60 + '%',
+                top: 20 + Math.random() * 60 + '%',
+                tx: (Math.random() - 0.5) * 100 + 'px',
+                ty: (Math.random() - 0.5) * 100 + 'px',
+                delay: Math.random() * 2 + 's',
+                color: Math.random() > 0.5 ? '#FFD700' : '#FF69B4'
+            }));
 
-        const KukuriAvatar = () => (
-            <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group mx-auto">
-                <img 
-                    src="http://googleusercontent.com/image_generation_content/1" 
-                    alt="Kukuri" 
-                    className="w-full h-full object-cover"
-                />
-            </div>
-        );
+            return (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {sparkles.map(s => (
+                        <div key={s.id} className="sparkle" style={{
+                            left: s.left, top: s.top, 
+                            '--tx': s.tx, '--ty': s.ty, 
+                            animationDelay: s.delay,
+                            backgroundColor: s.color,
+                            width: Math.random() * 6 + 4 + 'px',
+                            height: Math.random() * 6 + 4 + 'px'
+                        }} />
+                    ))}
+                </div>
+            );
+        };
 
         const TreasureChest = () => (
              <svg className="bounce-char mx-auto" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -175,29 +197,38 @@
             </svg>
         );
 
+        // --- APP PRINCIPAL ---
         const App = () => {
-            // Estados: 'closed', 'opening', 'scene1', 'password', 'scene2', 'closing'
             const [stage, setStage] = useState('closed'); 
             const [password, setPassword] = useState('');
             const [error, setError] = useState(false);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const audioRef = useRef(null);
+            
             const SECRET_CODE = "GURU"; 
+
+            // Manejo de Audio
+            useEffect(() => {
+                if (isPlaying && audioRef.current) {
+                    audioRef.current.volume = 0.3; // Volumen suave
+                    audioRef.current.play().catch(e => console.log("Audio block:", e));
+                }
+            }, [isPlaying]);
 
             // Manejo de transiciones
             const handleStart = () => {
                 if (stage === 'closed') {
+                    setIsPlaying(true); // Iniciar música
                     setStage('opening');
-                    // Después de 2.5 segundos de animación de "apertura" (viendo la imagen brillando), pasamos al libro abierto
                     setTimeout(() => setStage('scene1'), 2500);
                 }
             };
 
             const handleFirstDownload = () => {
                 const link = document.createElement('a');
-                link.href = '#'; 
+                link.href = '#'; // TU LINK DE DESCARGA
                 link.setAttribute('download', 'CircleOfLove_Demo.zip');
-                // link.click(); // Descomentar para producción
-                
-                // Pequeña espera para simular reacción
+                // link.click(); 
                 setTimeout(() => setStage('password'), 800);
             };
 
@@ -213,45 +244,44 @@
             };
 
             const handleSecondDownload = () => {
-                // Volver al inicio para reiniciar la experiencia
-                setTimeout(() => setStage('closed'), 2000);
+                // Reiniciar
+                setStage('closed');
+                setIsPlaying(false);
+                if(audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current.currentTime = 0;
+                }
             };
 
             return (
                 <div className="scene-container">
                     
-                    {/* --- FASE 1: INICIO (Personajes mirando el libro) --- */}
+                    {/* Elemento de Audio Oculto */}
+                    <audio ref={audioRef} src={AUDIO_BGM} loop />
+
+                    {/* FASE 1: INICIO */}
                     <img 
                         src={IMG_CLOSED} 
                         className={`bg-image bg-interactive ${stage === 'closed' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}
                         onClick={handleStart}
                         alt="Start Adventure"
+                        onError={(e) => {e.target.style.display='none';}} // Ocultar si falla
                     />
 
-                    {/* --- FASE 2: ABRIENDO (Libro brillando) --- */}
-                    <img 
-                        src={IMG_OPENING} 
-                        className={`bg-image ${stage === 'opening' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}
-                        alt="Magic Opening"
-                    />
+                    {/* FASE 2: ABRIENDO (Con destellos) */}
+                    <div className={`absolute inset-0 transition-opacity duration-1000 ${stage === 'opening' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}>
+                        <img src={IMG_OPENING} className="bg-image" alt="Magic Opening" />
+                        <Sparkles />
+                    </div>
 
-                    {/* --- FASE 3: LIBRO ABIERTO (Interfaz Interactiva) --- */}
-                    {/* Este contenedor y su imagen de fondo solo son visibles en las escenas interactivas */}
+                    {/* FASE 3: LIBRO ABIERTO */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${['scene1', 'password', 'scene2'].includes(stage) ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
-                        
-                        {/* Imagen de fondo del libro abierto */}
-                        <img 
-                            src={IMG_OPEN_BOOK} 
-                            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                            alt="Open Book Background"
-                        />
+                        <img src={IMG_OPEN_BOOK} className="absolute inset-0 w-full h-full object-contain pointer-events-none" alt="Background" />
 
-                        {/* CONTENIDO SUPERPUESTO EN LAS PÁGINAS (GRID) */}
                         <div className="book-grid">
                             
-                            {/* --- PÁGINA IZQUIERDA (Personajes / Info / Tesoro) --- */}
+                            {/* PÁGINA IZQUIERDA */}
                             <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[-1deg]">
-                                
                                 {(stage === 'scene1' || stage === 'password') && (
                                     <div className="animate-[fadeIn_0.5s_ease-out]">
                                         <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-6 rotate-[-2deg] inline-block shadow-md">
@@ -259,44 +289,45 @@
                                         </div>
                                         
                                         <div className="flex justify-center gap-4 mb-4">
+                                            {/* Avatares */}
                                             <div className="flex flex-col items-center bounce-char">
-                                                <NikeAvatar />
+                                                <div className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md">
+                                                    <img src={IMG_NIKE} className="w-full h-full object-cover" alt="Nike" />
+                                                </div>
                                                 <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">NIKE</div>
                                             </div>
                                             <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
-                                                <KukuriAvatar />
+                                                <div className="w-20 h-20 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md">
+                                                    <img src={IMG_KUKURI} className="w-full h-full object-cover" alt="Kukuri" />
+                                                </div>
                                                 <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">KUKURI</div>
                                             </div>
                                         </div>
                                         
                                         <p className="handwritten text-xl text-gray-700 font-bold mt-2 rotate-1 bg-white/50 px-2 rounded">
-                                            "¡La aventura comienza aquí!"
+                                            "¡Escucha la Miracle Melody!"
                                         </p>
                                     </div>
                                 )}
 
                                 {stage === 'scene2' && (
-                                    <div className="animate-[fadeIn_0.5s_ease-out]">
+                                    <div className="animate-[fadeIn_0.5s_ease-out] relative">
+                                        <Sparkles />
                                         <TreasureChest />
                                         <h3 className="text-4xl font-bold text-[#d63031] drop-shadow-md mt-4 font-serif">LEVEL UP!</h3>
-                                        <p className="handwritten text-lg text-gray-800 mt-2 font-bold bg-white/60 p-1 rounded">¡Has completado el ritual!</p>
                                     </div>
                                 )}
                             </div>
 
-                            {/* --- PÁGINA DERECHA (Acciones / Descargas / Password) --- */}
+                            {/* PÁGINA DERECHA */}
                             <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[1deg]">
-                                
                                 {stage === 'scene1' && (
                                     <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
-                                        <h2 className="text-3xl mb-4 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e] inline-block">Capítulo 1</h2>
-                                        <p className="text-lg text-gray-700 mb-6 leading-tight handwritten font-bold">
-                                            ¿Tienes el coraje para abrir el sello sagrado?
+                                        <h2 className="text-3xl mb-2 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e] inline-block">Capítulo 1</h2>
+                                        <p className="text-sm text-gray-600 mb-6 font-bold uppercase tracking-widest">
+                                            Spiral Dreamer Arc
                                         </p>
-                                        <button 
-                                            onClick={handleFirstDownload}
-                                            className="rpg-btn text-white text-xl px-6 py-4 w-full font-bold flex items-center justify-center gap-2 rounded-lg shadow-xl"
-                                        >
+                                        <button onClick={handleFirstDownload} className="rpg-btn text-white text-xl px-6 py-4 w-full font-bold flex items-center justify-center gap-2 rounded-lg shadow-xl">
                                             <DownloadIcon /> DESCARGAR
                                         </button>
                                     </div>
@@ -306,24 +337,10 @@
                                     <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
                                         <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
                                         <p className="handwritten text-lg mb-4 text-[#d63031] font-bold">¡Di la palabra secreta!</p>
-                                        
                                         <form onSubmit={handlePasswordSubmit} className="w-full">
-                                            <input 
-                                                type="text" 
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="CÓDIGO..."
-                                                className="rpg-input w-full px-4 py-3 text-center text-2xl mb-4 font-bold uppercase text-[#4a0e4e] focus:outline-none focus:bg-yellow-50 rounded"
-                                            />
-                                            {error && (
-                                                <p className="text-red-500 font-bold animate-bounce mb-2 bg-white/80 rounded">¡INCORRECTO!</p>
-                                            )}
-                                            <button 
-                                                type="submit"
-                                                className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-3 text-xl rounded shadow-lg"
-                                            >
-                                                INVOCAR
-                                            </button>
+                                            <input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="CÓDIGO..." className="rpg-input w-full px-4 py-3 text-center text-2xl mb-4 font-bold uppercase text-[#4a0e4e] focus:outline-none focus:bg-yellow-50 rounded" />
+                                            {error && <p className="text-red-500 font-bold animate-bounce mb-2 bg-white/80 rounded">¡INCORRECTO!</p>}
+                                            <button type="submit" className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-3 text-xl rounded shadow-lg">INVOCAR</button>
                                         </form>
                                         <div className="mt-4 text-sm text-gray-500 bg-white/70 p-2 rounded rotate-1 shadow-sm border border-gray-200">
                                             <span className="font-bold">Pista:</span> Nombre de la tribu...
@@ -336,22 +353,18 @@
                                         <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
                                         <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow-md rotate-[-1deg]">
                                             <p className="font-bold text-[#880e4f]">♫ BGM: Circle of Love</p>
-                                            <p className="handwritten text-sm">Voces: Nike & Kukuri</p>
+                                            <p className="handwritten text-sm">El viaje continúa...</p>
                                         </div>
-                                        <button 
-                                            onClick={handleSecondDownload}
-                                            className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-4 text-xl flex items-center justify-center gap-2 animate-pulse rounded-lg shadow-xl"
-                                        >
+                                        <button onClick={handleSecondDownload} className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-4 text-xl flex items-center justify-center gap-2 animate-pulse rounded-lg shadow-xl">
                                             <DownloadIcon /> OBTENER TESORO
                                         </button>
                                     </div>
                                 )}
                             </div>
-
                         </div>
                     </div>
                     
-                    {/* Mensaje de ayuda inicial */}
+                    {/* Mensaje de ayuda */}
                     {stage === 'closed' && (
                         <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none animate-bounce z-30">
                             <span className="bg-black/50 text-white px-4 py-2 rounded-full text-lg font-bold backdrop-blur-sm border-2 border-white">
