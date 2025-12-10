@@ -158,6 +158,33 @@
             font-size: 1.5rem;
         }
 
+        /* Input estilo Místico (sin caja) para el diseño decorado */
+        .mystic-input {
+            border: none;
+            border-bottom: 4px solid rgba(255, 215, 0, 0.7);
+            background: transparent;
+            text-align: center;
+            font-family: 'VT323', monospace;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 3rem;
+            letter-spacing: 0.2em;
+            outline: none;
+            transition: all 0.3s;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 100, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        .mystic-input:focus {
+            border-bottom-color: #fff;
+            transform: scale(1.05);
+        }
+        .mystic-input::placeholder {
+            color: rgba(255, 215, 0, 0.3);
+            font-size: 2rem;
+            letter-spacing: 0.1em;
+        }
+
         @media (max-width: 768px) {
             .aspect-ratio-box {
                 width: 95%;
@@ -199,84 +226,99 @@
 
         // --- COMPONENTES ---
         
-        // 1. ESPIRAL DE INVOCACIÓN (INICIO)
+        // 1. ESPIRAL DE INVOCACIÓN (INICIO) - VERSIÓN GIGANTE Y DECORADA
         const InvocationSpiral = ({ onClick, isInvoking }) => (
             <div 
                 onClick={onClick} 
-                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isInvoking ? 'scale-125' : 'hover:scale-110'}`}
+                className={`relative cursor-pointer transition-all duration-700 group flex flex-col items-center justify-center w-full h-full ${isInvoking ? 'scale-110 brightness-125' : 'hover:scale-105'}`}
             >
-                <div className="relative w-64 h-64 md:w-80 md:h-80">
-                    <svg 
-                        viewBox="0 0 100 100" 
-                        className={`w-full h-full text-[#d63031] drop-shadow-xl ${isInvoking ? 'animate-[spin_0.3s_linear_infinite]' : 'animate-[spin_8s_linear_infinite]'}`}
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="4" 
-                        strokeLinecap="round"
-                    >
-                        <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" opacity="0.8"/>
-                        <path d="M50 50 m 0 -2 a 2 2 0 1 0 0 4 a 2 2 0 1 0 0 -4" fill="currentColor" />
-                        <path d="M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50" strokeWidth="2" opacity="0.6"/>
+                <div className="relative w-72 h-72 md:w-96 md:h-96">
+                    <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
+                        {/* Anillo de Runas Exterior (Gira lento) */}
+                        <circle cx="100" cy="100" r="90" fill="none" stroke="#d63031" strokeWidth="1" strokeDasharray="4,6" className={`opacity-60 ${isInvoking ? 'animate-[spin_1s_linear_infinite]' : 'animate-[spin_20s_linear_infinite]'}`} />
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="#4a0e4e" strokeWidth="2" opacity="0.4" />
+                        
+                        {/* Círculo Medio (Gira opuesto) */}
+                        <g className={isInvoking ? 'animate-[spin_1s_linear_infinite_reverse]' : 'animate-[spin_15s_linear_infinite_reverse]'}>
+                            <circle cx="100" cy="100" r="70" fill="none" stroke="#d63031" strokeWidth="2" />
+                            <path d="M100 30 L100 170 M30 100 L170 100" stroke="#d63031" strokeWidth="1" opacity="0.5" />
+                            <rect x="65" y="65" width="70" height="70" fill="none" stroke="#d63031" strokeWidth="1" transform="rotate(45 100 100)" opacity="0.6"/>
+                        </g>
+
+                        {/* Espiral Central (Gira rápido) */}
+                        <g className={isInvoking ? 'animate-[spin_0.2s_linear_infinite] text-yellow-400' : 'animate-[spin_6s_linear_infinite] text-[#d63031]'}>
+                            <path 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="5" 
+                                strokeLinecap="round"
+                                d="M100 100 m 0 -8 a 8 8 0 1 1 0 16 a 16 16 0 1 1 0 -32 a 24 24 0 1 1 0 48 a 32 32 0 1 1 0 -64 a 40 40 0 1 1 0 80" 
+                            />
+                        </g>
                     </svg>
+                    
+                    {/* Texto central flotante */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-2xl text-[#4a0e4e] bg-white/90 px-4 py-1 rounded-full backdrop-blur-md shadow-lg transition-opacity border-2 border-[#d63031] ${isInvoking ? 'opacity-0' : 'opacity-100'}`}>
+                        <span className={`font-bold text-3xl text-[#4a0e4e] bg-white/90 px-6 py-2 rounded-full backdrop-blur-md shadow-[0_0_20px_rgba(214,48,49,0.5)] border-2 border-[#d63031] ${isInvoking ? 'opacity-0 scale-150' : 'opacity-100 scale-100'} transition-all duration-300`}>
                             INVOCAR
                         </span>
                     </div>
                 </div>
-                <p className={`mt-4 handwritten text-xl text-[#d63031] font-bold text-center bg-white/60 px-4 py-1 rounded ${isInvoking ? 'animate-pulse' : ''}`}>
-                    {isInvoking ? "¡INVOCANDO MAGIA...!" : "Toca el Círculo Mágico"}
+                <p className={`mt-4 handwritten text-2xl text-[#d63031] font-bold text-center bg-white/70 px-6 py-2 rounded-lg shadow-lg ${isInvoking ? 'animate-pulse' : ''}`}>
+                    {isInvoking ? "¡INVOCANDO PODER...!" : "Toca el Círculo Mágico"}
                 </p>
             </div>
         );
 
-        // 2. COMPONENTE DEL SELLO MÁGICO GIGANTE (Full Page)
+        // 2. COMPONENTE DEL SELLO MÁGICO GIGANTE (Full Page, sin caja)
         const FullMagicSeal = ({ password, setPassword, onSubmit, error }) => (
             <div className="relative w-full h-full flex flex-col items-center justify-center animate-[fadeIn_0.5s_ease-out]">
                 
-                {/* SVG de Fondo del Sello que cubre ambas páginas */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-60">
-                    <svg viewBox="0 0 200 100" className="w-full h-full text-[#4a0e4e]">
-                        {/* Círculos mágicos grandes */}
-                        <circle cx="100" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" className="animate-[spin_20s_linear_infinite]" />
-                        <circle cx="100" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 1" className="animate-[spin_15s_linear_infinite_reverse]" />
-                        <circle cx="100" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-                        
-                        {/* Cadenas Cruzadas */}
-                        <path d="M60 10 L140 90" stroke="#2d1b2e" strokeWidth="2" strokeDasharray="4 1" opacity="0.8" />
-                        <path d="M60 90 L140 10" stroke="#2d1b2e" strokeWidth="2" strokeDasharray="4 1" opacity="0.8" />
+                {/* Fondo Mágico Rotatorio */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+                    <svg viewBox="0 0 200 200" className="w-[120%] h-[120%] text-[#4a0e4e] animate-[spin_60s_linear_infinite]">
+                        <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="5,5" />
+                        <path d="M100 10 L190 100 L100 190 L10 100 Z" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                        <circle cx="100" cy="100" r="50" fill="none" stroke="#d63031" strokeWidth="1" opacity="0.5" />
                     </svg>
                 </div>
 
-                {/* Contenedor Central del Sello */}
-                <div className="relative z-10 flex flex-col items-center bg-[#4a0e4e]/80 p-8 rounded-2xl shadow-2xl backdrop-blur-sm border-4 border-[#FFD700]">
+                {/* Elementos Centrales Flotantes */}
+                <div className="relative z-10 flex flex-col items-center w-full max-w-2xl">
                     
-                    {/* Icono de Candado Brillante */}
-                    <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]">🔒</div>
+                    {/* Icono de Candado Flotante */}
+                    <div className="text-8xl mb-2 filter drop-shadow-[0_0_20px_rgba(255,215,0,0.8)] animate-bounce">🔒</div>
                     
-                    <h2 className="text-3xl text-[#FFD700] font-bold mb-6 font-serif tracking-widest text-shadow">SELLO SAGRADO</h2>
+                    <h2 className="text-4xl text-[#FFD700] font-bold mb-8 font-serif tracking-[0.2em] text-shadow-lg drop-shadow-md">
+                        SELLO SAGRADO
+                    </h2>
                     
-                    <form onSubmit={onSubmit} className="w-full flex flex-col items-center gap-4">
-                        <input 
-                            type="text" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            placeholder="PALABRA MÁGICA" 
-                            className="seal-input w-64 uppercase"
-                            autoFocus
-                        />
+                    <form onSubmit={onSubmit} className="w-full flex flex-col items-center gap-6">
+                        <div className="relative w-full flex justify-center">
+                            <input 
+                                type="text" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                placeholder="PALABRA MÁGICA" 
+                                className="mystic-input uppercase"
+                                autoFocus
+                            />
+                            {/* Brillos decorativos alrededor del input */}
+                            <div className="absolute -right-4 top-2 text-yellow-400 text-2xl animate-pulse">✨</div>
+                            <div className="absolute -left-4 bottom-2 text-yellow-400 text-xl animate-pulse delay-100">✨</div>
+                        </div>
                         
                         {error && (
-                            <div className="text-red-300 font-bold bg-red-900/50 px-4 py-1 rounded border border-red-500 animate-bounce">
-                                ¡LA MAGIA RECHAZA ESA PALABRA!
+                            <div className="text-[#ff9a9e] font-bold text-xl text-shadow animate-[bounce_0.5s_infinite]">
+                                ⚡ ¡LA MAGIA RECHAZA ESA PALABRA! ⚡
                             </div>
                         )}
                         
                         <button 
                             type="submit" 
-                            className="mt-4 bg-[#FFD700] text-[#4a0e4e] text-xl font-bold px-8 py-3 rounded-full hover:scale-110 hover:bg-white transition-all shadow-[0_0_15px_rgba(255,215,0,0.6)] flex items-center gap-2"
+                            className="mt-6 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-[#4a0e4e] text-2xl font-bold px-10 py-4 rounded-full hover:scale-110 hover:brightness-110 transition-all shadow-[0_0_30px_rgba(255,215,0,0.6)] flex items-center gap-3 border-2 border-white"
                         >
-                            <span>✨</span> ROMPER SELLO <span>✨</span>
+                            <span>🔮</span> ROMPER SELLO <span>🔮</span>
                         </button>
                     </form>
                 </div>
@@ -287,34 +329,48 @@
         const FinalSpiral = ({ onClick, isCollecting }) => (
             <div 
                 onClick={onClick} 
-                className={`relative cursor-pointer transition-all duration-500 group flex flex-col items-center justify-center ${isCollecting ? 'scale-110 opacity-50' : 'hover:scale-105'}`}
+                className={`relative cursor-pointer transition-all duration-700 group flex flex-col items-center justify-center w-full h-full ${isCollecting ? 'scale-110 opacity-80' : 'hover:scale-105'}`}
             >
-                <div className="relative w-64 h-64 md:w-80 md:h-80">
+                <div className="relative w-72 h-72 md:w-96 md:h-96">
                     <svg 
                         viewBox="0 0 100 100" 
-                        className={`w-full h-full text-pink-500 drop-shadow-[0_0_15px_rgba(255,105,180,0.8)] ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'}`}
+                        className={`w-full h-full text-pink-500 drop-shadow-[0_0_25px_rgba(255,105,180,0.6)] ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_12s_linear_infinite]'}`}
                         fill="none" 
                         stroke="currentColor" 
                         strokeWidth="3" 
                         strokeLinecap="round"
                     >
-                        {/* Espiral con forma geométrica "Circle of Love" */}
-                        <path d="M50 50 m 0 -5 a 5 5 0 1 0 0 10 a 10 10 0 1 0 0 -20 a 20 20 0 1 0 0 40 a 30 30 0 1 0 0 -60" opacity="0.8"/>
-                        <circle cx="50" cy="50" r="45" strokeDasharray="5,5" opacity="0.5" stroke="#FFD700"/>
-                        {/* Rayos dorados del final */}
-                        <path d="M50 50 L50 10" strokeWidth="2" stroke="#FFD700" />
-                        <path d="M50 50 L90 50" strokeWidth="2" stroke="#FFD700" />
-                        <path d="M50 50 L10 50" strokeWidth="2" stroke="#FFD700" />
-                        <path d="M50 50 L50 90" strokeWidth="2" stroke="#FFD700" />
-                        <circle cx="50" cy="50" r="10" fill="#FFD700" className="animate-pulse"/>
+                        {/* Círculo Exterior Decorado */}
+                        <circle cx="50" cy="50" r="48" stroke="#FFD700" strokeWidth="1" strokeDasharray="2,2" />
+                        
+                        {/* Formas de Corazón/Florales */}
+                        <path d="M50 50 m 0 -5 a 5 5 0 1 0 0 10 a 10 10 0 1 0 0 -20 a 20 20 0 1 0 0 40 a 30 30 0 1 0 0 -60" opacity="0.9"/>
+                        
+                        {/* Rayos dorados */}
+                        <g stroke="#FFD700" strokeWidth="2">
+                            <path d="M50 5 L50 20" />
+                            <path d="M50 80 L50 95" />
+                            <path d="M5 50 L20 50" />
+                            <path d="M80 50 L95 50" />
+                            {/* Diagonales */}
+                            <path d="M18 18 L28 28" />
+                            <path d="M72 72 L82 82" />
+                            <path d="M18 82 L28 72" />
+                            <path d="M72 28 L82 18" />
+                        </g>
+                        
+                        <circle cx="50" cy="50" r="8" fill="#FFD700" className="animate-pulse"/>
                     </svg>
                     
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-3xl text-white bg-pink-600/90 px-6 py-2 rounded-full shadow-lg border-2 border-[#FFD700] tracking-widest ${isCollecting ? 'opacity-0' : 'opacity-100'}`}>
+                        <span className={`font-bold text-4xl text-white bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.3)] border-4 border-[#FFD700] tracking-widest transform transition-transform ${isCollecting ? 'scale-0' : 'scale-100'}`}>
                             TESORO
                         </span>
                     </div>
                 </div>
+                <p className="mt-6 handwritten text-2xl text-[#e91e63] font-bold bg-white/80 px-6 py-2 rounded-lg shadow-lg backdrop-blur-sm">
+                    {isCollecting ? "✨ ¡RECOGIENDO MAGIA! ✨" : "Toca para Guardar"}
+                </p>
             </div>
         );
 
@@ -340,6 +396,17 @@
                 </div>
             );
         };
+
+        const TreasureChest = () => (
+             <svg className="bounce-char mx-auto drop-shadow-md" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 50 L80 50 L75 80 L25 80 Z" fill="#FBC02D" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
+                <path d="M15 40 Q50 20 85 40 L80 50 L20 50 Z" fill="#FDD835" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
+                <circle cx="50" cy="55" r="6" fill="#2d1b2e"/>
+                <circle cx="50" cy="55" r="3" fill="#F44336"/>
+                <path d="M30 40 L35 30 L40 40 Z" fill="#00E676" />
+                <path d="M60 40 L65 25 L70 40 Z" fill="#2979FF" />
+            </svg>
+        );
 
         // --- APP PRINCIPAL ---
         const App = () => {
