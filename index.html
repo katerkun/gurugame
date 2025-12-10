@@ -15,18 +15,16 @@
             --color-secondary: #7afcff;
             --color-accent: #ffeb3b;
             --color-text: #4a0e4e;
-            --pixel-border: 4px solid #2d1b2e;
         }
 
         body {
             font-family: 'VT323', monospace;
-            background-color: #fff0f5;
+            background-color: #2a1b3d;
             background-image: 
-                linear-gradient(45deg, #ff7eb3 25%, transparent 25%, transparent 75%, #ff7eb3 75%, #ff7eb3),
-                linear-gradient(45deg, #ff7eb3 25%, transparent 25%, transparent 75%, #ff7eb3 75%, #ff7eb3);
-            background-position: 0 0, 20px 20px;
-            background-size: 40px 40px;
-            background-color: #ffeef5;
+                radial-gradient(#44315f 15%, transparent 16%),
+                radial-gradient(#44315f 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
             overflow: hidden;
             margin: 0;
             padding: 0;
@@ -37,103 +35,37 @@
             font-family: 'Indie Flower', cursive;
         }
 
-        /* Efectos 3D para el libro */
-        .book-container {
-            perspective: 2000px;
-        }
-
-        .book {
-            transform-style: preserve-3d;
-            transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 340px;
-            height: 480px;
+        /* Contenedor de la escena */
+        .scene-container {
+            transition: all 1s ease-in-out;
             position: relative;
-        }
-
-        @media (min-width: 768px) {
-            .book {
-                width: 700px;
-                height: 500px;
-            }
-        }
-
-        .book-cover, .book-page {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 4px;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
-            border: var(--pixel-border);
-        }
-
-        /* Portada Frontal - Estilo Grimoire Pop */
-        .book-cover.front {
-            /* El fondo ahora es manejado por el SVG, dejamos un color base por si acaso */
-            background: #d32f2f; 
-            transform-origin: left;
-            z-index: 20;
-            transition: transform 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Cursor pointer para indicar que es clickeable */
-            cursor: pointer;
         }
 
-        /* Hover effect para el libro cerrado */
-        .book-closed .book-cover.front:hover {
-            transform: rotateY(-15deg) scale(1.02);
-            box-shadow: 12px 12px 0px rgba(0,0,0,0.3);
-        }
-
-        .book-spine {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            background: #d63031;
-            transform: rotateY(90deg) translateX(-20px);
-            transform-origin: left;
-            border: var(--pixel-border);
-        }
-
-        /* Interior del libro (estilo papel antiguo/RPG) */
-        .book-interior {
+        /* Imágenes de fondo para cada estado */
+        .bg-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #fffcf0; /* Color pergamino */
-            z-index: 10;
-            display: flex;
-            border-radius: 4px;
-            overflow: hidden;
-            border: var(--pixel-border);
+            object-fit: contain; /* Ajusta para ver la imagen completa sin recortar */
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
         }
 
-        /* Decoración mágica giratoria */
-        .magic-circle-spin {
-            animation: spin 10s linear infinite;
+        /* Clase interactiva para la primera imagen */
+        .bg-interactive {
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Estados del libro */
-        .book-closed .book-cover.front {
-            transform: rotateY(0deg);
-        }
-
-        .book-open .book-cover.front {
-            transform: rotateY(-180deg);
-            cursor: default; /* Ya no es clickeable para abrir cuando está abierto */
+        .bg-interactive:hover {
+            transform: scale(1.02);
         }
 
         /* Botón RPG Retro */
@@ -143,10 +75,15 @@
             box-shadow: inset -4px -4px 0px rgba(0,0,0,0.3), inset 4px 4px 0px rgba(255,255,255,0.3);
             image-rendering: pixelated;
             transition: all 0.1s;
+            cursor: pointer;
         }
         .rpg-btn:active {
             transform: translateY(2px);
             box-shadow: inset -2px -2px 0px rgba(0,0,0,0.3), inset 2px 2px 0px rgba(255,255,255,0.3);
+        }
+        
+        .rpg-btn:hover {
+            filter: brightness(1.1);
         }
 
         .rpg-input {
@@ -155,31 +92,37 @@
             box-shadow: inset 4px 4px 0px rgba(0,0,0,0.1);
         }
         
-        /* Animación "Jumping" de personajes */
         .bounce-char {
             animation: bounce 2s infinite;
         }
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .pixel-corners {
-            clip-path: polygon(
-                0px 10px, 10px 10px, 10px 0px, 
-                calc(100% - 10px) 0px, calc(100% - 10px) 10px, 100% 10px, 
-                100% calc(100% - 10px), calc(100% - 10px) calc(100% - 10px), calc(100% - 10px) 100%, 
-                10px 100%, 10px calc(100% - 10px), 0px calc(100% - 10px)
-            );
+            50% { transform: translateY(-5px); }
         }
         
-        /* Estilos específicos para los SVGs de personajes */
-        .char-svg {
-            filter: drop-shadow(4px 4px 0px rgba(45, 27, 46, 0.3));
-            transition: transform 0.2s;
+        /* Grid para el contenido del libro abierto */
+        .book-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* Ajustamos el tamaño del grid para que coincida con las páginas abiertas de la imagen */
+            width: 80%; 
+            max-width: 900px;
+            height: 60%; 
+            max-height: 500px;
+            position: relative;
+            z-index: 10;
         }
-        .char-svg:hover {
-            transform: scale(1.1) rotate(5deg);
+        
+        @media (max-width: 768px) {
+            .book-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+                height: 80%;
+                width: 90%;
+            }
+            .bg-image {
+                object-fit: cover;
+            }
         }
     </style>
 </head>
@@ -189,92 +132,43 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Iconos SVG Estilo Pixel/Doodle
+        // --- IMÁGENES DE LOS ESTADOS DEL LIBRO ---
+        const IMG_CLOSED = "https://drive.google.com/file/d/1QcC2CwIZiEcNgsGrUMOb3J0zfj7k6aBM/view?usp=sharing"; // Fase 1: Personajes mirando libro
+        const IMG_OPENING = "https://drive.google.com/file/d/10qN7beRFKmoUnrhhOw-pK18nnw1da20S/view?usp=sharing"; // Fase 2: Libro brillando
+        const IMG_OPEN_BOOK = "https://drive.google.com/file/d/1XJriD78yxAoruJQZ3UBRU8tYUn6iX474/view?usp=sharing"; // Fase 3: Libro abierto vacío
+
+        // --- ICONOS Y ASSETS ---
         const DownloadIcon = () => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         );
 
-        const MagicSpiral = ({ className }) => (
-            <svg className={className} viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round">
-                <path d="M50 50 m 0 -5 a 5 5 0 1 1 0 10 a 10 10 0 1 1 0 -20 a 20 20 0 1 1 0 40 a 35 35 0 1 1 0 -70" opacity="0.6"/>
-            </svg>
-        );
-
-        // --- IMAGEN DE PORTADA PERSONALIZADA ---
-        const GrimoireCover = () => (
-            <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-                <defs>
-                    <pattern id="magic-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                         <circle cx="20" cy="20" r="2" fill="#b71c1c" opacity="0.5"/>
-                         <path d="M10 10 L30 30 M30 10 L10 30" stroke="#b71c1c" strokeWidth="1" opacity="0.2"/>
-                    </pattern>
-                </defs>
-                
-                {/* Fondo Base */}
-                <rect width="100%" height="100%" fill="#e53935" />
-                <rect width="100%" height="100%" fill="url(#magic-pattern)" />
-                
-                {/* Borde Dorado Decorativo */}
-                <rect x="5%" y="3%" width="90%" height="94%" rx="10" fill="none" stroke="#FFD700" strokeWidth="4" strokeDasharray="15, 10" />
-                <rect x="7%" y="4.5%" width="86%" height="91%" rx="8" fill="none" stroke="#FFD700" strokeWidth="2" />
-
-                {/* Esquinas Mágicas */}
-                <g fill="none" stroke="#FFD700" strokeWidth="3">
-                    {/* Arriba Izquierda */}
-                    <path d="M20 60 L20 20 L60 20" /> 
-                    <circle cx="30" cy="30" r="5" fill="#FFD700" stroke="none"/>
-                    
-                    {/* Arriba Derecha */}
-                    <path d="M-20 60 L-20 20 L-60 20" transform="scale(-1, 1) translate(-100%, 0)"/> 
-                    
-                    {/* Abajo Izquierda */}
-                    <path d="M20 -60 L20 -20 L60 -20" transform="scale(1, -1) translate(0, -100%)"/>
-                    
-                    {/* Abajo Derecha */}
-                    <path d="M-20 -60 L-20 -20 L-60 -20" transform="scale(-1, -1) translate(-100%, -100%)"/>
-                </g>
-
-                {/* Círculo Mágico Central de Fondo */}
-                <g transform="translate(50%, 50%)" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
-                    <circle cx="0" cy="0" r="30%" fill="none" stroke="#FFD700" strokeWidth="2" opacity="0.3" />
-                    <path d="M-50 0 L50 0 M0 -50 L0 50" stroke="#FFD700" strokeWidth="1" opacity="0.3" />
-                    <rect x="-35" y="-35" width="70" height="70" transform="rotate(45)" fill="none" stroke="#FFD700" strokeWidth="1" opacity="0.3"/>
-                </g>
-            </svg>
-        );
-
-        // --- PERSONAJES SVG CUSTOMIZADOS ---
-
+        // Avatares generados previamente
         const NikeAvatar = () => (
-             <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group">
+             <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group mx-auto">
                 <img 
                     src="http://googleusercontent.com/image_generation_content/0" 
                     alt="Nike" 
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                 />
             </div>
         );
 
         const KukuriAvatar = () => (
-            <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group">
+            <div className="w-24 h-24 rounded-full border-4 border-[#2d1b2e] overflow-hidden bg-white shadow-md relative group mx-auto">
                 <img 
                     src="http://googleusercontent.com/image_generation_content/1" 
                     alt="Kukuri" 
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                 />
             </div>
         );
 
         const TreasureChest = () => (
-             <svg className="char-svg bounce-char" width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Base del cofre */}
+             <svg className="bounce-char mx-auto" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M20 50 L80 50 L75 80 L25 80 Z" fill="#FBC02D" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
-                {/* Tapa del cofre (abierta un poco) */}
                 <path d="M15 40 Q50 20 85 40 L80 50 L20 50 Z" fill="#FDD835" stroke="#2d1b2e" strokeWidth="4" strokeLinejoin="round"/>
-                {/* Cerradura */}
                 <circle cx="50" cy="55" r="6" fill="#2d1b2e"/>
                 <circle cx="50" cy="55" r="3" fill="#F44336"/>
-                {/* Brillos / Tesoro */}
                 <path d="M30 40 L35 30 L40 40 Z" fill="#00E676" />
                 <path d="M60 40 L65 25 L70 40 Z" fill="#2979FF" />
                 <path d="M45 40 L50 20 L55 40 Z" fill="#FF4081" />
@@ -282,27 +176,29 @@
         );
 
         const App = () => {
-            const [stage, setStage] = useState('closed');
+            // Estados: 'closed', 'opening', 'scene1', 'password', 'scene2', 'closing'
+            const [stage, setStage] = useState('closed'); 
             const [password, setPassword] = useState('');
             const [error, setError] = useState(false);
             const SECRET_CODE = "GURU"; 
 
-            const handleOpenBook = () => {
-                // Solo abre el libro si está cerrado. Evita re-trigger si ya está abierto.
+            // Manejo de transiciones
+            const handleStart = () => {
                 if (stage === 'closed') {
                     setStage('opening');
-                    setTimeout(() => setStage('scene1'), 1200);
+                    // Después de 2.5 segundos de animación de "apertura" (viendo la imagen brillando), pasamos al libro abierto
+                    setTimeout(() => setStage('scene1'), 2500);
                 }
             };
 
             const handleFirstDownload = () => {
-                // Simulación de descarga
                 const link = document.createElement('a');
                 link.href = '#'; 
                 link.setAttribute('download', 'CircleOfLove_Demo.zip');
-                // En un entorno real, descomenta la siguiente línea:
-                // link.click();
-                setTimeout(() => setStage('password'), 1000);
+                // link.click(); // Descomentar para producción
+                
+                // Pequeña espera para simular reacción
+                setTimeout(() => setStage('password'), 800);
             };
 
             const handlePasswordSubmit = (e) => {
@@ -317,180 +213,152 @@
             };
 
             const handleSecondDownload = () => {
-                setTimeout(() => setStage('closing'), 2000);
-                setTimeout(() => setStage('closed'), 3500);
+                // Volver al inicio para reiniciar la experiencia
+                setTimeout(() => setStage('closed'), 2000);
             };
 
             return (
-                <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="scene-container">
                     
-                    {/* Contenedor Principal */}
-                    <div className={`book-container relative flex justify-center items-center`}>
+                    {/* --- FASE 1: INICIO (Personajes mirando el libro) --- */}
+                    <img 
+                        src={IMG_CLOSED} 
+                        className={`bg-image bg-interactive ${stage === 'closed' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}
+                        onClick={handleStart}
+                        alt="Start Adventure"
+                    />
+
+                    {/* --- FASE 2: ABRIENDO (Libro brillando) --- */}
+                    <img 
+                        src={IMG_OPENING} 
+                        className={`bg-image ${stage === 'opening' ? 'opacity-100 z-20' : 'opacity-0 z-0'}`}
+                        alt="Magic Opening"
+                    />
+
+                    {/* --- FASE 3: LIBRO ABIERTO (Interfaz Interactiva) --- */}
+                    {/* Este contenedor y su imagen de fondo solo son visibles en las escenas interactivas */}
+                    <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-1000 ${['scene1', 'password', 'scene2'].includes(stage) ? 'opacity-100 z-10' : 'opacity-0 -z-10'}`}>
                         
-                        <div className={`book ${stage === 'closed' ? 'book-closed' : 'book-open'} relative transition-all duration-1000 ${stage !== 'closed' && stage !== 'opening' && stage !== 'closing' ? 'translate-x-0' : ''}`}>
+                        {/* Imagen de fondo del libro abierto */}
+                        <img 
+                            src={IMG_OPEN_BOOK} 
+                            className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                            alt="Open Book Background"
+                        />
+
+                        {/* CONTENIDO SUPERPUESTO EN LAS PÁGINAS (GRID) */}
+                        <div className="book-grid">
                             
-                            {/* INTERIOR DEL GRIMOIRE */}
-                            <div className="book-interior flex flex-col md:flex-row">
+                            {/* --- PÁGINA IZQUIERDA (Personajes / Info / Tesoro) --- */}
+                            <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[-1deg]">
                                 
-                                {/* PÁGINA IZQUIERDA: Personajes y Arte */}
-                                <div className="w-full md:w-1/2 p-4 flex flex-col items-center justify-center border-b-4 md:border-b-0 md:border-r-4 border-[#2d1b2e] relative bg-[#fffcf0]">
-                                    {/* Marcos decorativos en esquinas */}
-                                    <div className="absolute top-2 left-2 text-[#ff7eb3]">╔</div>
-                                    <div className="absolute top-2 right-2 text-[#ff7eb3]">╗</div>
-                                    <div className="absolute bottom-2 left-2 text-[#ff7eb3]">╚</div>
-                                    <div className="absolute bottom-2 right-2 text-[#ff7eb3]">╝</div>
-
-                                    {(stage === 'scene1' || stage === 'password') && (
-                                        <div className="text-center z-10 animate-[fadeIn_0.5s_ease-out]">
-                                            <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] p-2 mb-4 rotate-2 inline-block shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-                                                <span className="text-2xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
+                                {(stage === 'scene1' || stage === 'password') && (
+                                    <div className="animate-[fadeIn_0.5s_ease-out]">
+                                        <div className="bg-[#ffeb3b] border-4 border-[#2d1b2e] px-4 py-1 mb-6 rotate-[-2deg] inline-block shadow-md">
+                                            <span className="text-xl font-bold tracking-widest text-[#d63031]">QUEST START!</span>
+                                        </div>
+                                        
+                                        <div className="flex justify-center gap-4 mb-4">
+                                            <div className="flex flex-col items-center bounce-char">
+                                                <NikeAvatar />
+                                                <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">NIKE</div>
                                             </div>
-                                            
-                                            <div className="flex justify-center gap-2 mb-4 mt-2 items-end">
-                                                {/* NIKE - Avatar estilo Doodle */}
-                                                <div className="flex flex-col items-center bounce-char">
-                                                    <NikeAvatar />
-                                                    <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold transform -rotate-2">NIKE</div>
-                                                </div>
-                                                
-                                                {/* KUKURI - Avatar estilo Doodle */}
-                                                <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
-                                                    <KukuriAvatar />
-                                                    <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold transform rotate-2">KUKURI</div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="handwritten text-xl text-gray-600 -rotate-2 mt-2">
-                                                "¡Vamos a buscar el Guru Guru!"
+                                            <div className="flex flex-col items-center bounce-char" style={{animationDelay: '0.2s'}}>
+                                                <KukuriAvatar />
+                                                <div className="bg-[#2d1b2e] text-white text-xs px-2 py-0.5 mt-1 font-bold">KUKURI</div>
                                             </div>
                                         </div>
-                                    )}
+                                        
+                                        <p className="handwritten text-xl text-gray-700 font-bold mt-2 rotate-1 bg-white/50 px-2 rounded">
+                                            "¡La aventura comienza aquí!"
+                                        </p>
+                                    </div>
+                                )}
 
-                                    {stage === 'scene2' && (
-                                        <div className="text-center z-10 animate-[fadeIn_0.5s_ease-out]">
-                                            <div className="relative">
-                                                <MagicSpiral className="w-48 h-48 mx-auto text-[#ff7eb3] magic-circle-spin absolute top-0 left-0 right-0 bottom-0 m-auto opacity-50" />
-                                                <TreasureChest />
-                                            </div>
-                                            <h3 className="text-3xl font-bold text-[#d63031] drop-shadow-md mt-4">LEVEL UP!</h3>
-                                            <p className="handwritten text-lg mt-2">¡Has desbloqueado el tesoro!</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* PÁGINA DERECHA: Interacción */}
-                                <div className="w-full md:w-1/2 bg-[#fffcf0] p-6 flex flex-col items-center justify-center relative">
-                                    {/* Lineas de libreta */}
-                                    <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'linear-gradient(#4a0e4e 1px, transparent 1px)', backgroundSize: '100% 24px', marginTop: '24px'}}></div>
-
-                                    {stage === 'scene1' && (
-                                        <div className="text-center w-full z-10">
-                                            <h2 className="text-3xl mb-4 text-[#4a0e4e]">Capítulo 1</h2>
-                                            <div className="bg-white border-4 border-[#2d1b2e] p-4 mb-6 text-left shadow-[4px_4px_0px_#ccc]">
-                                                <p className="text-lg leading-tight">¿Estás listo para comenzar la aventura?</p>
-                                            </div>
-                                            <button 
-                                                onClick={handleFirstDownload}
-                                                className="rpg-btn text-white text-xl px-6 py-3 w-full font-bold flex items-center justify-center gap-2"
-                                            >
-                                                <DownloadIcon /> DESCARGAR
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {stage === 'password' && (
-                                        <div className="text-center w-full z-10">
-                                            <h2 className="text-2xl mb-2">SELLO MÁGICO</h2>
-                                            <p className="handwritten text-lg mb-4 text-[#d63031]">¡Di la palabra secreta!</p>
-                                            
-                                            <form onSubmit={handlePasswordSubmit} className="w-full">
-                                                <input 
-                                                    type="text" 
-                                                    value={password}
-                                                    onChange={(e) => setPassword(e.target.value)}
-                                                    placeholder="A B C..."
-                                                    className="rpg-input w-full px-4 py-3 text-center text-2xl mb-2 font-bold uppercase text-[#4a0e4e] focus:outline-none focus:bg-yellow-50"
-                                                />
-                                                {error ? (
-                                                    <p className="text-red-500 text-lg animate-pulse mb-2">¡FALLASTE!</p>
-                                                ) : (
-                                                    <p className="text-gray-400 text-sm mb-2 opacity-0">.</p>
-                                                )}
-                                                <button 
-                                                    type="submit"
-                                                    className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-2 text-xl"
-                                                >
-                                                    INVOCAR
-                                                </button>
-                                            </form>
-                                            <div className="mt-4 text-sm bg-yellow-100 p-2 border-2 border-dashed border-yellow-400 inline-block rotate-1">
-                                                <span className="handwritten font-bold">Pista:</span> Nombre de la tribu...
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {stage === 'scene2' && (
-                                        <div className="text-center w-full z-10">
-                                            <h2 className="text-3xl mb-4 text-[#e91e63]">¡FINAL!</h2>
-                                            <div className="bg-pink-100 border-4 border-[#e91e63] p-3 mb-6 shadow-[4px_4px_0px_#f8bbd0]">
-                                                <p className="font-bold text-[#880e4f]">♫ BGM: Circle of Love</p>
-                                                <p className="handwritten text-sm">Voces: Nike & Kukuri</p>
-                                            </div>
-                                            <button 
-                                                onClick={handleSecondDownload}
-                                                className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-4 text-xl flex items-center justify-center gap-2 animate-pulse"
-                                            >
-                                                <DownloadIcon /> OBTENER TESORO
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+                                {stage === 'scene2' && (
+                                    <div className="animate-[fadeIn_0.5s_ease-out]">
+                                        <TreasureChest />
+                                        <h3 className="text-4xl font-bold text-[#d63031] drop-shadow-md mt-4 font-serif">LEVEL UP!</h3>
+                                        <p className="handwritten text-lg text-gray-800 mt-2 font-bold bg-white/60 p-1 rounded">¡Has completado el ritual!</p>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* PORTADA EXTERIOR (Estilo Grimoire) */}
-                            {/* Ahora tiene onClick para abrirse solo al tocarlo */}
-                            <div 
-                                className={`book-cover front ${stage !== 'closed' ? 'open-book' : ''}`} 
-                                onClick={handleOpenBook}
-                                style={{
-                                    transform: (stage === 'closed' || stage === 'closing') ? 'rotateY(0deg)' : 'rotateY(-180deg)'
-                                }}
-                            >
-                                {/* Lomo del libro visible al girar ligeramente */}
-                                <div className="absolute left-0 top-0 bottom-0 w-8 bg-[#b71c1c] border-r-4 border-[#2d1b2e] z-0"></div>
+                            {/* --- PÁGINA DERECHA (Acciones / Descargas / Password) --- */}
+                            <div className="p-4 md:p-8 flex flex-col items-center justify-center text-center transform md:rotate-[1deg]">
                                 
-                                {/* Imagen de Portada Generada por SVG */}
-                                <GrimoireCover />
-
-                                <div className="flex flex-col items-center justify-center w-full h-full p-8 text-center text-[#2d1b2e] z-10 pointer-events-none">
-                                    
-                                    {/* Círculo Mágico Decorativo en la portada (superpuesto al SVG base) */}
-                                    <div className="relative w-48 h-48 mb-6 flex items-center justify-center">
-                                        <div className="absolute inset-2 border-[2px] border-[#fff] rounded-full opacity-80 border-dashed animate-[spin_20s_linear_infinite]"></div>
-                                        <MagicSpiral className="text-white w-32 h-32 animate-[spin_8s_linear_infinite]" />
+                                {stage === 'scene1' && (
+                                    <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
+                                        <h2 className="text-3xl mb-4 text-[#4a0e4e] font-bold border-b-2 border-[#4a0e4e] inline-block">Capítulo 1</h2>
+                                        <p className="text-lg text-gray-700 mb-6 leading-tight handwritten font-bold">
+                                            ¿Tienes el coraje para abrir el sello sagrado?
+                                        </p>
+                                        <button 
+                                            onClick={handleFirstDownload}
+                                            className="rpg-btn text-white text-xl px-6 py-4 w-full font-bold flex items-center justify-center gap-2 rounded-lg shadow-xl"
+                                        >
+                                            <DownloadIcon /> DESCARGAR
+                                        </button>
                                     </div>
+                                )}
 
-                                    <h1 className="text-5xl font-bold text-white drop-shadow-[4px_4px_0px_#2d1b2e] leading-none mb-2 transform -rotate-2">
-                                        CIRCLE<br/>OF<br/>LOVE
-                                    </h1>
-                                    <div className="bg-white px-2 py-1 mt-4 border-2 border-[#2d1b2e] shadow-[4px_4px_0px_rgba(0,0,0,0.2)]">
-                                        <p className="text-sm font-bold tracking-widest">MAGIC THREE VOICES</p>
-                                    </div>
-                                    
-                                    {stage === 'closed' && (
-                                        <div className="absolute bottom-12 text-white font-bold animate-pulse text-lg bg-[#00000033] px-3 rounded">
-                                            Tap to Open
+                                {stage === 'password' && (
+                                    <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
+                                        <h2 className="text-2xl mb-2 text-[#4a0e4e] font-bold">SELLO MÁGICO</h2>
+                                        <p className="handwritten text-lg mb-4 text-[#d63031] font-bold">¡Di la palabra secreta!</p>
+                                        
+                                        <form onSubmit={handlePasswordSubmit} className="w-full">
+                                            <input 
+                                                type="text" 
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                placeholder="CÓDIGO..."
+                                                className="rpg-input w-full px-4 py-3 text-center text-2xl mb-4 font-bold uppercase text-[#4a0e4e] focus:outline-none focus:bg-yellow-50 rounded"
+                                            />
+                                            {error && (
+                                                <p className="text-red-500 font-bold animate-bounce mb-2 bg-white/80 rounded">¡INCORRECTO!</p>
+                                            )}
+                                            <button 
+                                                type="submit"
+                                                className="rpg-btn bg-[#9c27b0] border-[#7b1fa2] text-white w-full py-3 text-xl rounded shadow-lg"
+                                            >
+                                                INVOCAR
+                                            </button>
+                                        </form>
+                                        <div className="mt-4 text-sm text-gray-500 bg-white/70 p-2 rounded rotate-1 shadow-sm border border-gray-200">
+                                            <span className="font-bold">Pista:</span> Nombre de la tribu...
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
+
+                                {stage === 'scene2' && (
+                                    <div className="w-full max-w-xs animate-[fadeIn_0.5s_ease-out]">
+                                        <h2 className="text-3xl mb-4 text-[#e91e63] font-bold">¡FINAL!</h2>
+                                        <div className="bg-pink-100 border-2 border-[#e91e63] p-3 mb-6 shadow-md rotate-[-1deg]">
+                                            <p className="font-bold text-[#880e4f]">♫ BGM: Circle of Love</p>
+                                            <p className="handwritten text-sm">Voces: Nike & Kukuri</p>
+                                        </div>
+                                        <button 
+                                            onClick={handleSecondDownload}
+                                            className="rpg-btn bg-[#ff4081] border-[#c2185b] text-white w-full py-4 text-xl flex items-center justify-center gap-2 animate-pulse rounded-lg shadow-xl"
+                                        >
+                                            <DownloadIcon /> OBTENER TESORO
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                         </div>
                     </div>
                     
-                    <footer className="fixed bottom-2 text-[#4a0e4e] text-lg w-full text-center handwritten">
-                         © 2025 Guru Guru Project 
-                    </footer>
+                    {/* Mensaje de ayuda inicial */}
+                    {stage === 'closed' && (
+                        <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none animate-bounce z-30">
+                            <span className="bg-black/50 text-white px-4 py-2 rounded-full text-lg font-bold backdrop-blur-sm border-2 border-white">
+                                Haz clic para comenzar la aventura
+                            </span>
+                        </div>
+                    )}
                 </div>
             );
         };
