@@ -22,7 +22,6 @@
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="%234a0e4e" stroke-width="2"><path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9Z"/></svg>'), auto; 
         }
 
-        /* --- FONDO Y LAYOUT --- */
         .immersive-bg {
             position: absolute;
             top: 0;
@@ -89,71 +88,51 @@
             50% { transform: translateY(-1%); }
         }
 
-        /* --- ESTILOS DEL SELLO (CRYPTEX) --- */
-        .ghost-input {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            z-index: 50;
-        }
-
-        /* Las letras mágicas */
-        .rune-char {
-            display: inline-block;
-            width: 60px;
-            height: 80px;
-            line-height: 80px;
-            font-size: 5rem;
+        /* --- ESTILOS PARA LAS RUNAS TÁCTILES --- */
+        .rune-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #FFD700;
             color: #FFD700;
-            text-align: center;
-            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff4500;
-            border-bottom: 4px solid rgba(255, 215, 0, 0.3);
-            margin: 0 10px;
-            font-family: 'VT323', monospace;
-            animation: runePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            text-shadow: 0 0 5px #FFD700;
+            user-select: none;
         }
-        
-        .rune-empty {
-            border-bottom: 4px dashed rgba(255, 215, 0, 0.2);
-            animation: none;
+        .rune-btn:hover {
+            transform: scale(1.1);
+            background: rgba(74, 14, 78, 0.8);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        .rune-btn:active {
+            transform: scale(0.95);
         }
 
-        @keyframes runePop {
-            0% { transform: scale(0.5); opacity: 0; }
+        /* Animación de carga del círculo central */
+        .slot-filled {
+            animation: slotPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            fill: #FFD700;
+            filter: drop-shadow(0 0 10px #ff4500);
+        }
+        @keyframes slotPop {
+            0% { transform: scale(0); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .cryptex-spin { animation: spinCryptex 10s linear infinite; }
-        @keyframes spinCryptex { 100% { transform: rotate(360deg); } }
-
-        /* Error Shake */
-        .shake-seal { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-
-        .sparkle {
-            position: absolute;
-            pointer-events: none;
-            animation: sparkleAnim 2.5s infinite linear;
-            opacity: 0;
-        }
-        @keyframes sparkleAnim {
-            0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: scale(0) translate(var(--tx), var(--ty)) rotate(180deg); opacity: 0; }
-        }
+        .shake-screen { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 
         @media (max-width: 768px) {
             .aspect-ratio-box { width: 95%; height: 80vh; aspect-ratio: auto; background: #fdf6e3; }
             .book-image { display: none; }
             .magic-area { width: 90%; height: 90%; left: 50%; top: 50%; }
-            .rune-char { font-size: 3rem; width: 40px; margin: 0 5px; }
+            .rune-btn { width: 50px; height: 50px; font-size: 1.8rem; }
         }
     </style>
 </head>
@@ -171,7 +150,7 @@
         const FILE_DEMO = "CircleOfLove_Demo.zip";
         const FILE_BONUS = "CircleOfLove_Bonus.zip";
 
-        // 1. CÍRCULO HEROICO (NIKE) - SIN TEXTO
+        // 1. CÍRCULO HEROICO (NIKE) - 100% VISUAL
         const HeroicCircle = ({ onClick, isInvoking }) => (
             <div onClick={onClick} className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center w-full h-full group`}>
                 <div className={`relative w-[400px] h-[400px] md:w-[650px] md:h-[650px] transition-all duration-500 ${isInvoking ? 'scale-110 brightness-150' : 'hover:scale-105'}`}>
@@ -210,7 +189,7 @@
             </div>
         );
 
-        // 2. CÍRCULO KUKURI - SIN TEXTO
+        // 2. CÍRCULO KUKURI - 100% VISUAL
         const KukuriCircle = ({ onClick, isCollecting }) => (
             <div onClick={onClick} className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center w-full h-full group`}>
                 <div className={`relative w-[400px] h-[400px] md:w-[650px] md:h-[650px] ${isCollecting ? 'scale-110 opacity-80' : 'hover:scale-105'}`}>
@@ -236,68 +215,102 @@
             </div>
         );
 
-        // 3. EL CRYPTEX (SELLO) - ESTILO MECANISMO
-        const CryptexSeal = ({ password, setPassword, onSubmit, error }) => {
-            const inputRef = useRef(null);
-            const slots = [0, 1, 2, 3]; // 4 ranuras para GURU
+        // 3. EL NUEVO SELLO: "LAS RUNAS TÁCTILES" (Sin teclado, sin texto)
+        const RuneRitualSeal = ({ onSuccess, error, setError }) => {
+            const [sequence, setSequence] = useState([]);
+            // Las runas disponibles para tocar (mezclamos las necesarias con una extra de señuelo 'A')
+            const RUNES = [
+                { id: 'G', label: 'G' },
+                { id: 'U', label: 'U' },
+                { id: 'A', label: '★' }, // Señuelo mágico
+                { id: 'R', label: 'R' }
+            ];
+            
+            // Reordenamos visualmente en arco: G - U - ★ - R (El usuario debe repetir letras si es necesario)
+            // Código objetivo: G - U - R - U
+            
+            const handleRuneClick = (char) => {
+                if(error) return; // Esperar si hubo error reciente
+                
+                const newSeq = [...sequence, char];
+                setSequence(newSeq);
 
-            const handleClick = () => { if(inputRef.current) inputRef.current.focus(); };
+                // Comprobar secuencia (GURU)
+                const TARGET = "GURU";
+                const currentStr = newSeq.join('');
+
+                // Si lo que llevamos escrito NO coincide con el inicio de GURU, error inmediato
+                if (!TARGET.startsWith(currentStr)) {
+                    setError(true);
+                    setTimeout(() => {
+                        setSequence([]);
+                        setError(false);
+                    }, 500);
+                    return;
+                }
+
+                // Si está completo
+                if (currentStr === TARGET) {
+                    setTimeout(() => onSuccess(), 300);
+                }
+            };
 
             return (
-                <div className={`w-full h-full flex flex-col items-center justify-center relative ${error ? 'shake-seal' : ''}`} onClick={handleClick}>
+                <div className={`w-full h-full flex flex-col items-center justify-center relative ${error ? 'shake-screen' : ''}`}>
                     
-                    {/* FONDO: Mecanismo de Anillos */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <svg viewBox="0 0 400 400" className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] opacity-90">
-                            {/* Anillo Exterior Estático */}
-                            <circle cx="200" cy="200" r="180" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="2,5" />
+                    {/* PARTE 1: El Núcleo del Sello (Feedback Visual) */}
+                    <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] mb-8">
+                        <svg viewBox="0 0 200 200" className="w-full h-full">
+                            {/* Círculo base giratorio */}
+                            <circle cx="100" cy="100" r="90" fill="none" stroke="#4a0e4e" strokeWidth="2" strokeDasharray="10,5" className="animate-[spin_20s_linear_infinite] opacity-50"/>
                             
-                            {/* Anillo Medio Giratorio */}
-                            <g className="cryptex-spin origin-center opacity-60">
-                                <circle cx="200" cy="200" r="150" fill="none" stroke="#d63031" strokeWidth="2" />
-                                <path d="M200 50 L200 70 M200 330 L200 350 M50 200 L70 200 M330 200 L350 200" stroke="#d63031" strokeWidth="3" />
-                                <rect x="195" y="40" width="10" height="10" fill="#FFD700" />
-                            </g>
+                            {/* 4 Ranuras de Energía (Cuadrantes) */}
+                            {/* Ranura 1 (Top Left) */}
+                            <path d="M100 100 L100 20 A 80 80 0 0 0 20 100 Z" 
+                                  fill={sequence.length > 0 ? "#FFD700" : "rgba(0,0,0,0.3)"} 
+                                  stroke="#FFD700" strokeWidth="1" 
+                                  className={`transition-all duration-300 ${sequence.length > 0 ? 'slot-filled' : ''}`} />
                             
-                            {/* Anillo Interno Contrarrotatorio */}
-                            <g className="animate-[spin_15s_linear_infinite_reverse] origin-center opacity-70">
-                                <circle cx="200" cy="200" r="120" fill="none" stroke="#FFD700" strokeWidth="1" strokeDasharray="10,10" />
-                                <path d="M200 80 L285 285 L80 200 Z" fill="none" stroke="#4a0e4e" strokeWidth="1" opacity="0.5"/>
-                            </g>
+                            {/* Ranura 2 (Top Right) */}
+                            <path d="M100 100 L180 100 A 80 80 0 0 0 100 20 Z" 
+                                  fill={sequence.length > 1 ? "#FFD700" : "rgba(0,0,0,0.3)"} 
+                                  stroke="#FFD700" strokeWidth="1"
+                                  className={`transition-all duration-300 ${sequence.length > 1 ? 'slot-filled' : ''}`} />
 
-                            {/* Marco Central (Donde van las letras) */}
-                            <rect x="50" y="160" width="300" height="80" rx="10" fill="rgba(0,0,0,0.3)" stroke="#FFD700" strokeWidth="2" />
+                            {/* Ranura 3 (Bottom Right) */}
+                            <path d="M100 100 L100 180 A 80 80 0 0 0 180 100 Z" 
+                                  fill={sequence.length > 2 ? "#FFD700" : "rgba(0,0,0,0.3)"} 
+                                  stroke="#FFD700" strokeWidth="1"
+                                  className={`transition-all duration-300 ${sequence.length > 2 ? 'slot-filled' : ''}`} />
+                                  
+                            {/* Ranura 4 (Bottom Left) */}
+                            <path d="M100 100 L20 100 A 80 80 0 0 0 100 180 Z" 
+                                  fill={sequence.length > 3 ? "#FFD700" : "rgba(0,0,0,0.3)"} 
+                                  stroke="#FFD700" strokeWidth="1"
+                                  className={`transition-all duration-300 ${sequence.length > 3 ? 'slot-filled' : ''}`} />
+                            
+                            {/* Centro (Candado Mágico) */}
+                            <circle cx="100" cy="100" r="25" fill="#2d1b2e" stroke="#FFD700" strokeWidth="3" />
+                            <text x="100" y="110" textAnchor="middle" fill="#FFD700" fontSize="20" fontWeight="bold">
+                                {sequence.length}/4
+                            </text>
                         </svg>
                     </div>
 
-                    {/* INTERFAZ: Slots de Letras */}
-                    <div className="relative z-30 flex flex-col items-center">
-                        <form onSubmit={onSubmit} className="relative flex justify-center items-center">
-                            <input 
-                                ref={inputRef}
-                                type="text" 
-                                value={password} 
-                                onChange={(e) => setPassword(e.target.value.slice(0, 4))} 
-                                className="ghost-input" 
-                                autoFocus
-                                autoComplete="off"
-                            />
-                            
-                            {/* Visualización de Ranuras */}
-                            <div className="flex justify-center items-end h-[100px]">
-                                {slots.map((i) => (
-                                    <div key={i} className={password[i] ? "rune-char" : "rune-char rune-empty"}>
-                                        {password[i] || ""}
-                                    </div>
-                                ))}
+                    {/* PARTE 2: Las Piedras Rúnicas (Interacción) */}
+                    <div className="flex gap-6 relative z-30">
+                        {RUNES.map((rune, idx) => (
+                            <div 
+                                key={idx} 
+                                className="rune-btn animate-bounce" 
+                                style={{animationDelay: `${idx * 0.1}s`}}
+                                onClick={() => handleRuneClick(rune.id)}
+                            >
+                                {rune.label}
                             </div>
-                        </form>
-
-                        {/* Texto de ayuda minimalista */}
-                        <div className="mt-8 text-[#FFD700] text-xl font-bold tracking-[0.3em] opacity-70 animate-pulse bg-black/40 px-4 py-1 rounded">
-                            {error ? "⚡ DENEGADO ⚡" : "[ INGRESA EL CÓDIGO ]"}
-                        </div>
+                        ))}
                     </div>
+                    
                 </div>
             );
         };
@@ -327,13 +340,11 @@
 
         const App = () => {
             const [stage, setStage] = useState('closed'); 
-            const [password, setPassword] = useState('');
             const [error, setError] = useState(false);
             const [isPlaying, setIsPlaying] = useState(false);
             const [isInvoking, setIsInvoking] = useState(false);
             const [isCollecting, setIsCollecting] = useState(false);
             const audioRef = useRef(null);
-            const SECRET_CODE = "GURU"; 
 
             const currentBg = stage === 'closed' ? IMG_CLOSED : (stage === 'opening' ? IMG_OPENING : IMG_OPEN_BOOK);
 
@@ -369,14 +380,9 @@
                 }, 2000);
             };
 
-            const handlePasswordSubmit = (e) => {
-                e.preventDefault();
-                if (password.toUpperCase() === SECRET_CODE) {
-                    setError(false); setStage('scene2');
-                } else {
-                    setError(true); setTimeout(() => setError(false), 500);
-                    setPassword('');
-                }
+            // Éxito al completar el ritual de runas
+            const handleRuneSuccess = () => {
+                 setStage('scene2');
             };
 
             const handleSecondDownload = () => {
@@ -394,7 +400,6 @@
                     setStage('closed');
                     setIsPlaying(false);
                     setIsCollecting(false);
-                    setPassword('');
                     if(audioRef.current) {
                         audioRef.current.pause();
                         audioRef.current.currentTime = 0;
@@ -421,11 +426,10 @@
                                 )}
 
                                 {stage === 'password' && (
-                                    <CryptexSeal 
-                                        password={password} 
-                                        setPassword={setPassword} 
-                                        onSubmit={handlePasswordSubmit} 
-                                        error={error} 
+                                    <RuneRitualSeal 
+                                        onSuccess={handleRuneSuccess} 
+                                        error={error}
+                                        setError={setError}
                                     />
                                 )}
 
