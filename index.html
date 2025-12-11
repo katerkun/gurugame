@@ -260,7 +260,8 @@
                 onClick={onClick} 
                 className={`relative cursor-pointer transition-all duration-700 group flex flex-col items-center justify-center w-full h-full ${isInvoking ? 'scale-125 brightness-150' : 'hover:scale-105'}`}
             >
-                <div className="relative w-[300px] h-[300px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px]">
+                {/* AUMENTADO AÚN MÁS PARA LLENAR LA PÁGINA */}
+                <div className="relative w-[350px] h-[350px] md:w-[650px] md:h-[650px] lg:w-[850px] lg:h-[850px]">
                     <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
                         {/* Anillo de Runas Exterior (Gira lento) */}
                         <circle cx="100" cy="100" r="95" fill="none" stroke="#d63031" strokeWidth="1" strokeDasharray="4,6" className={`opacity-60 ${isInvoking ? 'animate-[spin_1s_linear_infinite]' : 'animate-[spin_20s_linear_infinite]'}`} />
@@ -284,14 +285,11 @@
                             />
                         </g>
                     </svg>
-                    
-                    {/* Texto central flotante - SIN BOTÓN, SOLO TEXTO MÁGICO */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-4xl text-[#d63031] tracking-[0.3em] drop-shadow-[0_0_10px_rgba(255,255,255,1)] ${isInvoking ? 'opacity-0 scale-150' : 'opacity-100 scale-100'} transition-all duration-300`}>
-                            INVOCAR
-                        </span>
-                    </div>
                 </div>
+                {/* Mensaje sutil debajo, fuera del círculo */}
+                <p className={`mt-4 handwritten text-2xl text-[#d63031] font-bold text-center bg-white/70 px-6 py-2 rounded-lg shadow-lg ${isInvoking ? 'animate-pulse' : ''}`}>
+                    {isInvoking ? "¡INVOCANDO PODER...!" : "Toca el Círculo Mágico"}
+                </p>
             </div>
         );
 
@@ -356,7 +354,7 @@
                 onClick={onClick} 
                 className={`relative cursor-pointer transition-all duration-700 group flex flex-col items-center justify-center w-full h-full ${isCollecting ? 'scale-110 opacity-80' : 'hover:scale-105'}`}
             >
-                <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] lg:w-[800px] lg:h-[800px]">
+                <div className="relative w-[300px] h-[300px] md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px]">
                     <svg 
                         viewBox="0 0 100 100" 
                         className={`w-full h-full text-pink-500 drop-shadow-[0_0_25px_rgba(255,105,180,0.6)] ${isCollecting ? 'animate-[spin_0.2s_linear_infinite]' : 'animate-[spin_12s_linear_infinite]'}`}
@@ -386,13 +384,10 @@
                         
                         <circle cx="50" cy="50" r="8" fill="#FFD700" className="animate-pulse"/>
                     </svg>
-                    
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className={`font-bold text-3xl text-white bg-gradient-to-r from-pink-500 to-purple-600 px-8 py-3 rounded-full shadow-[0_5px_15px_rgba(0,0,0,0.3)] border-4 border-[#FFD700] tracking-widest transform transition-transform ${isCollecting ? 'scale-0' : 'scale-100'}`}>
-                            TESORO
-                        </span>
-                    </div>
                 </div>
+                <p className="mt-6 handwritten text-2xl text-[#e91e63] font-bold bg-white/80 px-6 py-2 rounded-lg shadow-lg backdrop-blur-sm">
+                    {isCollecting ? "✨ ¡RECOGIENDO MAGIA! ✨" : "Toca para Guardar"}
+                </p>
             </div>
         );
 
@@ -447,8 +442,15 @@
                 if (isPlaying && audioRef.current) {
                     audioRef.current.volume = 0.3;
                     const playPromise = audioRef.current.play();
+                    
                     if (playPromise !== undefined) {
-                        playPromise.catch(error => console.log("Audio autoplay block"));
+                        playPromise
+                            .then(_ => {
+                                // Reproducción iniciada
+                            })
+                            .catch(error => {
+                                console.log("Audio autoplay block");
+                            });
                     }
                 }
             }, [isPlaying]);
@@ -490,6 +492,7 @@
             const handleSecondDownload = () => {
                 if (isCollecting) return;
                 setIsCollecting(true);
+
                 setTimeout(() => {
                     const link = document.createElement('a');
                     link.href = FILE_BONUS; 
@@ -497,6 +500,7 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+
                     setStage('closed');
                     setIsPlaying(false);
                     setIsCollecting(false);
@@ -524,6 +528,7 @@
 
                         {stage !== 'closed' && <Sparkles />}
 
+                        {/* 3. CONTENIDO INTERACTIVO */}
                         {['scene1', 'password', 'scene2'].includes(stage) && (
                             <div className="book-grid animate-[fadeIn_1s_ease-out]">
                                 
@@ -552,6 +557,7 @@
                                         <FinalSpiral onClick={handleSecondDownload} isCollecting={isCollecting} />
                                     </div>
                                 )}
+
                             </div>
                         )}
                     </div>
