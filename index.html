@@ -10,23 +10,16 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --color-primary: #ff7eb3;
-            --color-secondary: #7afcff;
-            --color-accent: #ffeb3b;
-            --color-text: #4a0e4e;
-        }
-
         body {
             font-family: 'VT323', monospace;
             background-color: #1a1a2e;
             overflow: hidden;
             margin: 0;
             padding: 0;
-            color: var(--color-text);
+            /* Cursor de varita mágica */
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="%234a0e4e" stroke-width="2"><path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9Z"/></svg>'), auto; 
         }
 
@@ -55,7 +48,7 @@
             overflow: hidden;
         }
 
-        /* --- CAJA DEL LIBRO (3072x1728) --- */
+        /* --- CAJA DEL LIBRO --- */
         .aspect-ratio-box {
             position: relative;
             width: 100%;
@@ -66,7 +59,6 @@
             align-items: center;
             justify-content: center;
             z-index: 10;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
         }
 
         .book-image {
@@ -79,23 +71,18 @@
             transition: opacity 0.8s ease-in-out;
         }
 
-        /* --- ÁREA MÁGICA --- 
-           Centrada en las coordenadas X=1560, Y=819 de la imagen de 3072x1728.
-           1560 / 3072 = 50.78% (Left)
-           819 / 1728 = 47.39% (Top)
-        */
+        /* --- ÁREA MÁGICA (Ajustada a x1560 y819) --- */
         .magic-area {
             position: absolute;
             left: 50.78%;
             top: 47.39%;
             transform: translate(-50%, -50%);
-            width: 60%;  /* Área amplia para permitir que los círculos crezcan */
+            width: 60%; 
             height: 70%;
             z-index: 20;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* outline: 1px solid rgba(255,0,0,0.3); Descomentar para ver el centro */
         }
 
         .float-book { animation: floatBook 6s ease-in-out infinite; }
@@ -104,6 +91,91 @@
             50% { transform: translateY(-1%); }
         }
 
+        /* --- EFECTOS DE TEXTO E INPUT OCULTO --- */
+        .magic-text-display {
+            font-size: 5rem;
+            color: #FFD700;
+            text-shadow: 0 0 15px #FF4500, 0 0 30px #FF0000;
+            letter-spacing: 0.5rem;
+            text-transform: uppercase;
+            pointer-events: none;
+            animation: textPulse 2s infinite;
+        }
+
+        /* El input real es invisible pero enfocable */
+        .ghost-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: text;
+            z-index: 50;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { filter: brightness(1); transform: scale(1); }
+            50% { filter: brightness(1.3); transform: scale(1.02); }
+        }
+
+        /* --- CAJA DE DIÁLOGO RPG (Estilo Guru Guru) --- */
+        .rpg-box {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 4px double #FFD700; /* Borde doble dorado */
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.8rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            min-width: 300px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 40;
+        }
+        
+        /* Triangulito de diálogo */
+        .rpg-box::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #FFD700;
+        }
+
+        @keyframes popIn {
+            from { transform: translateX(-50%) scale(0); opacity: 0; }
+            to { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+
+        /* Animación "Typewriter" cursor */
+        .cursor-blink {
+            display: inline-block;
+            width: 20px;
+            height: 4px;
+            background: #FFD700;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Vórtice Oscuro */
+        .void-spin { animation: spinVoid 20s linear infinite; }
+        @keyframes spinVoid { 100% { transform: rotate(360deg); } }
+        
+        .void-pulse { animation: pulseVoid 3s ease-in-out infinite; }
+        @keyframes pulseVoid { 
+            0%, 100% { transform: scale(1); opacity: 0.8; } 
+            50% { transform: scale(1.1); opacity: 1; } 
+        }
+
+        /* Sparkles */
         .sparkle {
             position: absolute;
             pointer-events: none;
@@ -116,55 +188,17 @@
             100% { transform: scale(0) translate(var(--tx), var(--ty)) rotate(180deg); opacity: 0; }
         }
 
-        .mystic-input {
-            border: none;
-            border-bottom: 3px solid rgba(255, 255, 255, 0.5);
-            background: rgba(0,0,0,0.2);
-            text-align: center;
-            font-family: 'VT323', monospace;
-            color: #FFD700;
-            font-weight: bold;
-            font-size: 4rem;
-            letter-spacing: 0.3em;
-            outline: none;
-            transition: all 0.3s;
-            width: 100%;
-            max-width: 500px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-            border-radius: 10px;
-            padding: 10px;
-        }
-        .mystic-input:focus {
-            background: rgba(0,0,0,0.4);
-            border-bottom-color: #FFD700;
-            transform: scale(1.05);
-        }
-        .mystic-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 2.5rem;
-        }
-
-        /* Animación de cadenas temblando */
-        .shake-chains {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-2px, 0, 0); }
-            20%, 80% { transform: translate3d(4px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
-            40%, 60% { transform: translate3d(8px, 0, 0); }
-        }
-
         @media (max-width: 768px) {
             .aspect-ratio-box {
                 width: 95%;
-                aspect-ratio: auto;
                 height: 80vh;
+                aspect-ratio: auto;
                 background: #fdf6e3;
-                border-radius: 10px;
             }
             .book-image { display: none; }
             .magic-area { width: 90%; height: 90%; left: 50%; top: 50%; }
+            .magic-text-display { font-size: 3rem; }
+            .rpg-box { width: 90%; font-size: 1.4rem; bottom: 5%; }
         }
     </style>
 </head>
@@ -184,13 +218,9 @@
 
         // --- COMPONENTES ---
 
-        // 1. CÍRCULO "HEROICO" (Más Grande y Centrado)
+        // 1. CÍRCULO "HEROICO" (NIKE) - Mantenemos el que te gustó
         const HeroicCircle = ({ onClick, isInvoking }) => (
-            <div 
-                onClick={onClick} 
-                className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center group ${isInvoking ? 'scale-125 brightness-150' : 'hover:scale-105'}`}
-            >
-                {/* TAMAÑO AUMENTADO: w-[650px] para pantallas grandes */}
+            <div onClick={onClick} className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center group ${isInvoking ? 'scale-125 brightness-150' : 'hover:scale-105'}`}>
                 <div className={`relative w-[400px] h-[400px] md:w-[650px] md:h-[650px] transition-all duration-500`}>
                     <svg viewBox="0 0 300 300" className="w-full h-full drop-shadow-[0_0_25px_rgba(255,69,0,0.5)]">
                         <defs>
@@ -207,24 +237,17 @@
                                 </feMerge>
                             </filter>
                         </defs>
-                        
-                        {/* Anillo de Runas Exterior */}
                         <g className={isInvoking ? 'animate-[spin_2s_linear_infinite]' : 'animate-[spin_25s_linear_infinite]'}>
                             <circle cx="150" cy="150" r="145" fill="none" stroke="url(#fireGrad)" strokeWidth="1" strokeDasharray="15,5" />
                             <circle cx="150" cy="150" r="135" fill="none" stroke="#d63031" strokeWidth="0.5" opacity="0.6"/>
-                            {/* Runas decorativas */}
                             {[...Array(16)].map((_, i) => (
                                 <path key={i} d="M138 5 L162 5 L150 20 Z" fill="#ff9800" transform={`rotate(${i * 22.5} 150 150)`} opacity="0.7" />
                             ))}
                         </g>
-
-                        {/* Hexagrama Doble */}
                         <g className={isInvoking ? 'animate-[spin_3s_linear_infinite_reverse]' : 'animate-[spin_12s_linear_infinite_reverse]'} style={{transformOrigin: '150px 150px'}}>
                             <path d="M150 20 L262 215 L38 215 Z" fill="none" stroke="url(#fireGrad)" strokeWidth="2" filter="url(#glow)" opacity="0.9"/>
                             <path d="M150 280 L38 85 L262 85 Z" fill="none" stroke="url(#fireGrad)" strokeWidth="2" filter="url(#glow)" opacity="0.9"/>
                         </g>
-
-                        {/* Núcleo Energético */}
                         <g className={isInvoking ? 'animate-[spin_0.5s_linear_infinite]' : 'group-hover:animate-[spin_3s_linear_infinite]'} style={{transformOrigin: '150px 150px'}}>
                              <rect x="120" y="120" width="60" height="60" fill="none" stroke="#fff" strokeWidth="2" transform="rotate(45 150 150)" filter="url(#glow)"/>
                              <circle cx="150" cy="150" r="20" fill="#ffeb3b" className="animate-pulse" filter="url(#glow)" />
@@ -234,13 +257,9 @@
             </div>
         );
 
-        // 2. CÍRCULO "KUKURI" (Más Grande)
+        // 2. CÍRCULO "KUKURI" - Mantenemos el que te gustó
         const KukuriCircle = ({ onClick, isCollecting }) => (
-            <div 
-                onClick={onClick} 
-                className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center group ${isCollecting ? 'scale-125 opacity-80' : 'hover:scale-105'}`}
-            >
-                {/* TAMAÑO AUMENTADO: w-[650px] */}
+            <div onClick={onClick} className={`relative cursor-pointer transition-all duration-700 flex items-center justify-center group ${isCollecting ? 'scale-125 opacity-80' : 'hover:scale-105'}`}>
                 <div className="relative w-[400px] h-[400px] md:w-[650px] md:h-[650px]">
                     <svg viewBox="0 0 300 300" className={`w-full h-full drop-shadow-[0_0_20px_rgba(255,105,180,0.5)] ${isCollecting ? 'animate-[spin_1s_linear_infinite]' : 'animate-[spin_40s_linear_infinite]'}`}>
                         <defs>
@@ -249,96 +268,97 @@
                                 <stop offset="100%" stopColor="#7afcff" />
                             </linearGradient>
                         </defs>
-
-                        {/* Patrón de Espirógrafo */}
                         <g opacity="0.5" className="text-purple-400">
                              {[...Array(12)].map((_, i) => (
                                 <ellipse key={i} cx="150" cy="150" rx="30" ry="140" fill="none" stroke="currentColor" strokeWidth="1" transform={`rotate(${i * 15} 150 150)`} />
                             ))}
                         </g>
-
                         <circle cx="150" cy="150" r="120" fill="none" stroke="url(#magicGrad)" strokeWidth="3" />
-                        
-                        {/* Estrella Curva Guru Guru */}
                         <g className={isCollecting ? 'hidden' : 'animate-[spin_20s_linear_infinite_reverse]'} style={{transformOrigin: '150px 150px'}}>
-                            <path d="M150 30 Q190 110 270 150 Q190 190 150 270 Q110 190 30 150 Q110 110 150 30" fill="none" stroke="#ff7eb3" strokeWidth="2" filter="url(#glow)"/>
+                            <path d="M150 30 Q190 110 270 150 Q190 190 150 270 Q110 190 30 150 Q110 110 150 30" fill="none" stroke="#ff7eb3" strokeWidth="2" />
                         </g>
-
-                        <circle cx="150" cy="150" r="10" fill="#fff" className="animate-pulse" filter="url(#glow)"/>
+                        <circle cx="150" cy="150" r="10" fill="#fff" className="animate-pulse"/>
                     </svg>
                 </div>
             </div>
         );
 
-        // 3. SELLO MÁGICO (REDDISEÑADO - BARRIER STYLE)
-        const MagicSeal = ({ password, setPassword, onSubmit, error }) => (
-            <div className={`relative w-full h-full flex items-center justify-center animate-[fadeIn_0.5s_ease-out]`}>
-                
-                {/* FONDO DEL SELLO: Cadenas y Barrera Mágica */}
-                <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-300 ${error ? 'shake-chains' : ''}`}>
-                    <svg viewBox="0 0 400 400" className="w-[600px] h-[600px] md:w-[800px] md:h-[800px] opacity-90">
-                        <defs>
-                            <radialGradient id="barrierGrad" cx="50%" cy="50%" r="50%">
-                                <stop offset="70%" stopColor="transparent" />
-                                <stop offset="100%" stopColor="#4a0e4e" stopOpacity="0.8" />
-                            </radialGradient>
-                            <pattern id="chainPattern" x="0" y="0" width="20" height="10" patternUnits="userSpaceOnUse">
-                                <path d="M0 5 L20 5" stroke="#2d3436" strokeWidth="4" strokeLinecap="round"/>
-                            </pattern>
-                        </defs>
-                        
-                        {/* Círculo de Contención */}
-                        <circle cx="200" cy="200" r="180" fill="url(#barrierGrad)" stroke="#4a0e4e" strokeWidth="2" strokeDasharray="10,5" className="animate-[spin_60s_linear_infinite]" />
-                        <circle cx="200" cy="200" r="160" fill="none" stroke="#d63031" strokeWidth="1" opacity="0.5" />
-                        
-                        {/* CADENAS CRUZADAS */}
-                        <g stroke="#2d1b2e" strokeWidth="8" strokeLinecap="round">
-                            <line x1="50" y1="50" x2="350" y2="350" />
-                            <line x1="350" y1="50" x2="50" y2="350" />
-                        </g>
-                        {/* Detalles de cadenas (eslabones simples superpuestos) */}
-                        <g stroke="#b2bec3" strokeWidth="2" strokeDasharray="15,5">
-                            <line x1="50" y1="50" x2="350" y2="350" />
-                            <line x1="350" y1="50" x2="50" y2="350" />
-                        </g>
+        // 3. EL SELLO OSCURO (Rediseñado - Sin inputs visibles, puro vórtice)
+        const VoidSeal = ({ password, setPassword, onSubmit, error }) => {
+            const inputRef = useRef(null);
 
-                        {/* Candado Central Estilizado */}
-                        <path d="M160 180 V150 A40 40 0 0 1 240 150 V180" fill="none" stroke="#FFD700" strokeWidth="12" />
-                        <rect x="150" y="180" width="100" height="80" rx="10" fill="#4a0e4e" stroke="#FFD700" strokeWidth="4" />
-                        <circle cx="200" cy="220" r="10" fill="#FFD700" />
-                        <path d="M200 220 V240" stroke="#FFD700" strokeWidth="4" />
-                    </svg>
-                </div>
-                
-                {/* INTERFAZ FLOTANTE DEL SELLO */}
-                <div className="relative z-30 flex flex-col items-center gap-6">
-                    <h2 className="text-4xl text-[#FFD700] font-bold tracking-[0.3em] text-shadow bg-black/40 px-6 py-2 rounded-lg border border-[#FFD700]/30 backdrop-blur-sm">
-                        SELLO DE PROTECCIÓN
-                    </h2>
+            // Enfocar el input invisible al hacer clic en cualquier parte del sello
+            const handleClick = () => {
+                if(inputRef.current) inputRef.current.focus();
+            };
+
+            return (
+                <div className="w-full h-full flex flex-col items-center justify-center relative" onClick={handleClick}>
                     
-                    <form onSubmit={onSubmit} className="flex flex-col items-center gap-4 w-full">
-                        <input 
-                            type="text" 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)} 
-                            placeholder="CLAVE" 
-                            className="mystic-input uppercase"
-                            autoFocus
-                        />
+                    {/* FONDO: Vórtice de Magia Oscura */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <svg viewBox="0 0 400 400" className="w-[500px] h-[500px] md:w-[700px] md:h-[700px] opacity-90">
+                            <defs>
+                                <radialGradient id="voidGrad" cx="50%" cy="50%" r="50%">
+                                    <stop offset="40%" stopColor="#2d1b2e" /> {/* Morado oscuro */}
+                                    <stop offset="90%" stopColor="#000" stopOpacity="0" />
+                                </radialGradient>
+                            </defs>
+                            
+                            {/* Anillos girando opuestos */}
+                            <g className="void-spin origin-center opacity-60">
+                                <circle cx="200" cy="200" r="150" stroke="#4a0e4e" strokeWidth="2" strokeDasharray="20,10" />
+                                <path d="M200 50 L200 350 M50 200 L350 200" stroke="#4a0e4e" strokeWidth="1" />
+                            </g>
+                            <g className="animate-[spin_10s_linear_infinite_reverse] origin-center opacity-80">
+                                <circle cx="200" cy="200" r="120" stroke="#800080" strokeWidth="4" strokeDasharray="5,15" />
+                            </g>
+                            
+                            {/* Centro del vacío */}
+                            <circle cx="200" cy="200" r="100" fill="url(#voidGrad)" className="void-pulse" />
+                        </svg>
+                    </div>
+
+                    {/* INTERFAZ: Letras Mágicas Flotantes */}
+                    <div className="relative z-30 flex flex-col items-center">
                         
+                        {/* El Input Invisible */}
+                        <form onSubmit={onSubmit} className="relative flex justify-center items-center">
+                            <input 
+                                ref={inputRef}
+                                type="text" 
+                                value={password} 
+                                onChange={(e) => setPassword(e.target.value)} 
+                                className="ghost-input" 
+                                autoFocus
+                                autoComplete="off"
+                            />
+                            
+                            {/* Representación Visual de las Letras */}
+                            <div className="magic-text-display">
+                                {password || ""}
+                                <span className="cursor-blink"></span>
+                            </div>
+                        </form>
+
+                        {/* Feedback de Error (Sacudida) */}
                         {error && (
-                            <div className="text-[#ff5252] font-bold text-2xl mt-2 animate-bounce bg-black/60 px-4 py-1 rounded shadow-lg border border-red-500">
-                                ⚡ RECHAZADO ⚡
+                            <div className="absolute top-24 text-red-500 font-bold text-3xl animate-bounce drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">
+                                ¡MAGIA RECHAZADA!
                             </div>
                         )}
-                        
-                        <p className="text-white/80 text-sm font-mono mt-4 bg-black/30 px-3 py-1 rounded">
-                            [ Escribe la palabra mágica y presiona Enter ]
+                    </div>
+
+                    {/* Instrucción Estilo RPG */}
+                    <div className="rpg-box">
+                        <p className="typing-effect">
+                            Una barrera oscura bloquea el camino.<br/>
+                            <span className="text-[#FFD700] text-sm opacity-80">Escribe "GURU" y presiona Enter...</span>
                         </p>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        };
 
         const Sparkles = () => {
             const sparkles = Array.from({ length: 25 }).map((_, i) => ({
@@ -363,7 +383,6 @@
             );
         };
 
-        // --- APP PRINCIPAL ---
         const App = () => {
             const [stage, setStage] = useState('closed'); 
             const [password, setPassword] = useState('');
@@ -414,6 +433,7 @@
                     setError(false); setStage('scene2');
                 } else {
                     setError(true); setTimeout(() => setError(false), 2000);
+                    setPassword('');
                 }
             };
 
@@ -443,11 +463,9 @@
             return (
                 <div className="scene-container">
                     <audio ref={audioRef} src={AUDIO_BGM} loop />
-
                     <div className="immersive-bg" style={{ backgroundImage: `url(${currentBg})` }}></div>
 
                     <div className="aspect-ratio-box float-book">
-                        
                         <img src={IMG_CLOSED} className={`book-image ${stage === 'closed' ? 'opacity-100 cursor-pointer hover:brightness-110' : 'opacity-0 pointer-events-none'}`} onClick={handleStart} />
                         <img src={IMG_OPENING} className={`book-image ${stage === 'opening' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
                         <img src={IMG_OPEN_BOOK} className={`book-image ${['scene1','password','scene2'].includes(stage) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
@@ -457,11 +475,17 @@
                         {['scene1', 'password', 'scene2'].includes(stage) && (
                             <div className="magic-area">
                                 {stage === 'scene1' && (
-                                    <HeroicCircle onClick={handleSpiralClick} isInvoking={isInvoking} />
+                                    <>
+                                        <HeroicCircle onClick={handleSpiralClick} isInvoking={isInvoking} />
+                                        {/* Texto RPG Flotante - Aparece abajo */}
+                                        <div className="rpg-box absolute bottom-0">
+                                            <p>¡El círculo reacciona!<br/><span className="text-yellow-300 text-sm">Toca para obtener la Demo</span></p>
+                                        </div>
+                                    </>
                                 )}
 
                                 {stage === 'password' && (
-                                    <MagicSeal 
+                                    <VoidSeal 
                                         password={password} 
                                         setPassword={setPassword} 
                                         onSubmit={handlePasswordSubmit} 
@@ -470,19 +494,16 @@
                                 )}
 
                                 {stage === 'scene2' && (
-                                    <KukuriCircle onClick={handleSecondDownload} isCollecting={isCollecting} />
+                                    <>
+                                        <KukuriCircle onClick={handleSecondDownload} isCollecting={isCollecting} />
+                                        <div className="rpg-box absolute bottom-0">
+                                            <p>¡Has roto el sello!<br/><span className="text-pink-300 text-sm">Toca para recibir tu recompensa final</span></p>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         )}
                     </div>
-
-                    {stage === 'closed' && (
-                        <div className="absolute bottom-12 animate-pulse z-50 pointer-events-none text-center">
-                            <span className="text-white/90 text-2xl font-bold tracking-widest uppercase drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/20 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/20">
-                                ✨ Toca el Grimorio ✨
-                            </span>
-                        </div>
-                    )}
                 </div>
             );
         };
