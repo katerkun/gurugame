@@ -22,7 +22,6 @@
             cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="white" stroke="%234a0e4e" stroke-width="2"><path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9Z"/></svg>'), auto; 
         }
 
-        /* --- BACKGROUND --- */
         .immersive-bg {
             position: absolute;
             top: 0;
@@ -53,7 +52,7 @@
             max-width: 3072px;
             aspect-ratio: 3072 / 1728;
             max-height: 100vh;
-            display: flex; /* Necesario para centrar, pero CUIDADO con los hijos absolutos */
+            display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10;
@@ -67,10 +66,10 @@
             height: 100%;
             object-fit: contain;
             transition: opacity 0.8s ease-in-out;
-            z-index: 1; /* Fondo del libro */
+            z-index: 1;
         }
 
-        /* CAPA DE EFECTOS: Separada para evitar el bug de alineación a la izquierda */
+        /* --- CAPA FX (Corrección de estrellas) --- */
         .fx-layer {
             position: absolute;
             top: 0;
@@ -78,10 +77,10 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 5; 
+            z-index: 5;
         }
 
-        /* --- ÁREA MÁGICA (Interactive Layer) --- */
+        /* --- ÁREA MÁGICA --- */
         .magic-area {
             position: absolute;
             left: 50.78%;
@@ -93,7 +92,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            /* border: 1px solid rgba(255,0,0,0.2); Debugging only */
         }
 
         .float-book { animation: floatBook 6s ease-in-out infinite; }
@@ -102,40 +100,54 @@
             50% { transform: translateY(-1%); }
         }
 
-        /* --- ESTILOS DEL SELLO DE RESONANCIA --- */
-        .crystal-node {
-            cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* --- ESTILOS DEL SELLO DE ESCRITURA --- */
+        .ghost-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: text;
+            z-index: 50;
         }
-        .crystal-node:hover { filter: brightness(1.3); transform: scale(1.2); }
+
+        .rune-slot {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
         
-        .node-active {
-            fill: #FFD700;
-            filter: drop-shadow(0 0 15px #FFD700);
-            animation: pulseNode 2s infinite;
-        }
-        .node-inactive {
-            fill: rgba(0,0,0,0.5);
-            stroke: #d63031;
+        .slot-active {
+            stroke: #FFD700;
             stroke-width: 2;
-            animation: shakeNode 0.2s infinite; /* Inestabilidad */
-        }
-        .node-locked {
-            fill: #7afcff;
-            filter: drop-shadow(0 0 10px #7afcff);
-            stroke: white;
+            filter: drop-shadow(0 0 8px #FFD700);
         }
 
-        @keyframes shakeNode {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, -1px); }
-            75% { transform: translate(-1px, 1px); }
-            100% { transform: translate(0, 0); }
+        .rune-text {
+            font-family: 'VT323', monospace;
+            fill: #FFD700;
+            text-shadow: 0 0 10px #ff4500;
+            animation: typePop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes pulseNode { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        /* --- SPARKLES FIX --- */
+        /* Cursor mágico parpadeante */
+        .magic-cursor {
+            fill: #FFD700;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        @keyframes typePop {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .shake-error { animation: shakeError 0.5s ease-in-out; }
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px) rotate(-2deg); }
+            40%, 80% { transform: translateX(5px) rotate(2deg); }
+        }
+
+        /* Sparkles */
         .sparkle {
             position: absolute;
             pointer-events: none;
@@ -234,94 +246,125 @@
             </div>
         );
 
-        // 3. EL NUEVO SELLO: "RESONANCIA" (Geometría interactiva)
-        const ResonanceSeal = ({ onSuccess }) => {
-            const [nodes, setNodes] = useState([false, false, false, false]); // Estado de los 4 cristales
+        // 3. SELLO DE INSCRIPCIÓN ETÉREA (Teclado Real, Estética Mágica)
+        const KeyboardSeal = ({ onSuccess }) => {
+            const [inputValue, setInputValue] = useState("");
+            const [isError, setIsError] = useState(false);
+            const inputRef = useRef(null);
 
-            const handleNodeClick = (index) => {
-                if (nodes[index]) return; // Ya está activo
-                const newNodes = [...nodes];
-                newNodes[index] = true;
-                setNodes(newNodes);
+            // Posiciones geométricas para las letras (Diamantes alrededor del centro)
+            // Coordenadas relativas al centro 200,200 del SVG
+            const slots = [
+                { x: 200, y: 120 }, // Arriba
+                { x: 280, y: 200 }, // Derecha
+                { x: 200, y: 280 }, // Abajo
+                { x: 120, y: 200 }  // Izquierda
+            ];
 
-                if (newNodes.every(Boolean)) {
-                    setTimeout(() => onSuccess(), 800);
+            const handleChange = (e) => {
+                if (isError) return;
+                const val = e.target.value.toUpperCase().slice(0, 4); // Máximo 4 caracteres
+                setInputValue(val);
+
+                // Comprobar código
+                if (val.length === 4) {
+                    if (val === "GURU") {
+                        // Éxito
+                        setTimeout(() => onSuccess(), 500);
+                    } else {
+                        // Error
+                        setIsError(true);
+                        setTimeout(() => {
+                            setInputValue("");
+                            setIsError(false);
+                        }, 800);
+                    }
                 }
             };
 
+            // Mantener el foco
+            const handleClick = () => {
+                if(inputRef.current) inputRef.current.focus();
+            };
+
             return (
-                <div className="w-full h-full flex flex-col items-center justify-center relative animate-[fadeIn_0.5s_ease-out]">
+                <div className={`w-full h-full flex flex-col items-center justify-center relative animate-[fadeIn_0.5s_ease-out]`} onClick={handleClick}>
+                    
+                    {/* INPUT INVISIBLE (El motor real) */}
+                    <input 
+                        ref={inputRef}
+                        type="text" 
+                        value={inputValue}
+                        onChange={handleChange}
+                        className="ghost-input"
+                        autoFocus
+                        autoComplete="off"
+                    />
+
+                    {/* INTERFAZ VISUAL DEL SELLO */}
                     <div className="relative w-[350px] h-[350px] md:w-[600px] md:h-[600px]">
                         <svg viewBox="0 0 400 400" className="w-full h-full">
-                            <defs>
-                                <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
-                                    <stop offset="0%" stopColor="#fff" />
-                                    <stop offset="50%" stopColor="#FFD700" />
-                                    <stop offset="100%" stopColor="transparent" />
-                                </radialGradient>
-                            </defs>
-
-                            {/* Fondo Mágico Giratorio (Base) */}
-                            <g className="animate-[spin_60s_linear_infinite] origin-center opacity-30">
-                                <circle cx="200" cy="200" r="190" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="10,5"/>
-                                <path d="M200 10 L390 200 L200 390 L10 200 Z" stroke="#4a0e4e" strokeWidth="1" fill="none"/>
-                            </g>
-
-                            {/* Círculo Central Pulsante */}
-                            <circle cx="200" cy="200" r={nodes.every(Boolean) ? "50" : "30"} fill="url(#coreGrad)" 
-                                    className={`transition-all duration-1000 ${nodes.every(Boolean) ? 'animate-ping' : 'animate-pulse'}`} opacity="0.5"/>
-
-                            {/* LÍNEAS CONECTORAS (Aparecen al activar nodos) */}
-                            <g stroke="#FFD700" strokeWidth="2" opacity="0.6">
-                                {nodes[0] && <line x1="200" y1="200" x2="200" y2="50" className="animate-[growLine_0.5s_ease-out]" />}
-                                {nodes[1] && <line x1="200" y1="200" x2="350" y2="200" className="animate-[growLine_0.5s_ease-out]" />}
-                                {nodes[2] && <line x1="200" y1="200" x2="200" y2="350" className="animate-[growLine_0.5s_ease-out]" />}
-                                {nodes[3] && <line x1="200" y1="200" x2="50" y2="200" className="animate-[growLine_0.5s_ease-out]" />}
-                            </g>
-
-                            {/* LOS 4 CRISTALES INTERACTIVOS (N, E, S, W) */}
-                            {/* Norte */}
-                            <g onClick={() => handleNodeClick(0)} className="crystal-node">
-                                <circle cx="200" cy="50" r="20" className={nodes[0] ? "node-locked" : "node-inactive"} />
-                                <circle cx="200" cy="50" r="30" fill="none" stroke={nodes[0] ? "#7afcff" : "#d63031"} strokeWidth="1" strokeDasharray="2,2" className="animate-[spin_4s_linear_infinite] origin-[200px_50px]"/>
-                            </g>
                             
-                            {/* Este */}
-                            <g onClick={() => handleNodeClick(1)} className="crystal-node">
-                                <circle cx="350" cy="200" r="20" className={nodes[1] ? "node-locked" : "node-inactive"} />
-                                <circle cx="350" cy="200" r="30" fill="none" stroke={nodes[1] ? "#7afcff" : "#d63031"} strokeWidth="1" strokeDasharray="2,2" className="animate-[spin_4s_linear_infinite] origin-[350px_200px]"/>
+                            {/* Círculo Base Giratorio */}
+                            <g className={`origin-center transition-all duration-300 ${isError ? 'shake-error' : ''}`}>
+                                <circle cx="200" cy="200" r="160" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="10,5" className="animate-[spin_40s_linear_infinite] opacity-50"/>
+                                <circle cx="200" cy="200" r="140" fill="none" stroke="#d63031" strokeWidth="0.5" className="animate-[spin_20s_linear_infinite_reverse] opacity-40"/>
+                                
+                                {/* Decoración central */}
+                                <rect x="150" y="150" width="100" height="100" transform="rotate(45 200 200)" fill="none" stroke="#4a0e4e" strokeWidth="1" opacity="0.3" />
                             </g>
 
-                            {/* Sur */}
-                            <g onClick={() => handleNodeClick(2)} className="crystal-node">
-                                <circle cx="200" cy="350" r="20" className={nodes[2] ? "node-locked" : "node-inactive"} />
-                                <circle cx="200" cy="350" r="30" fill="none" stroke={nodes[2] ? "#7afcff" : "#d63031"} strokeWidth="1" strokeDasharray="2,2" className="animate-[spin_4s_linear_infinite] origin-[200px_350px]"/>
-                            </g>
+                            {/* RANURAS DE LETRAS (Slots) */}
+                            {slots.map((pos, i) => {
+                                const hasLetter = i < inputValue.length;
+                                const isCurrent = i === inputValue.length;
+                                
+                                return (
+                                    <g key={i} transform={`translate(${pos.x}, ${pos.y})`}>
+                                        {/* Forma del Slot (Rombo) */}
+                                        <path d="M0 -30 L30 0 L0 30 L-30 0 Z" 
+                                              fill={hasLetter ? "rgba(255, 215, 0, 0.1)" : "none"} 
+                                              stroke={hasLetter ? "#FFD700" : "#4a0e4e"} 
+                                              strokeWidth={hasLetter ? 2 : 1}
+                                              className={`rune-slot ${hasLetter ? 'slot-active' : ''}`}
+                                              opacity={hasLetter || isCurrent ? 1 : 0.3}
+                                        />
+                                        
+                                        {/* Cursor indicador (si es el turno de escribir aquí) */}
+                                        {!hasLetter && isCurrent && !isError && (
+                                            <circle r="5" fill="#FFD700" className="magic-cursor" />
+                                        )}
 
-                            {/* Oeste */}
-                            <g onClick={() => handleNodeClick(3)} className="crystal-node">
-                                <circle cx="50" cy="200" r="20" className={nodes[3] ? "node-locked" : "node-inactive"} />
-                                <circle cx="50" cy="200" r="30" fill="none" stroke={nodes[3] ? "#7afcff" : "#d63031"} strokeWidth="1" strokeDasharray="2,2" className="animate-[spin_4s_linear_infinite] origin-[50px_200px]"/>
-                            </g>
+                                        {/* La Letra Mágica */}
+                                        {hasLetter && (
+                                            <text y="10" textAnchor="middle" fontSize="40" fontWeight="bold" className="rune-text origin-center">
+                                                {inputValue[i]}
+                                            </text>
+                                        )}
+                                    </g>
+                                );
+                            })}
+                            
+                            {/* Feedback de Error Visual */}
+                            {isError && (
+                                <text x="200" y="200" textAnchor="middle" fill="#d63031" fontSize="150" opacity="0.5" fontWeight="bold" className="animate-pulse">X</text>
+                            )}
 
                         </svg>
                         
-                        {/* Instrucción Visual Sutil */}
-                        {!nodes.every(Boolean) && (
-                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                                <div className="text-[#d63031]/50 animate-pulse text-xl font-bold tracking-widest">[ INESTABLE ]</div>
-                             </div>
-                        )}
+                        {/* Texto de Ayuda Flotante (Fuera del SVG para nitidez) */}
+                        <div className="absolute bottom-10 w-full text-center pointer-events-none">
+                            <p className="text-[#4a0e4e]/50 font-bold tracking-widest text-sm animate-pulse">
+                                {inputValue.length === 0 ? "[ ESCRIBE EL CÓDIGO ]" : "..."}
+                            </p>
+                        </div>
                     </div>
                 </div>
             );
         };
 
-        // --- COMPONENTE SPARKLES (CORREGIDO) ---
-        // Ahora se posiciona relativo a la capa FX, no dentro del flexbox del libro
         const Sparkles = () => {
             const [particles, setParticles] = useState([]);
-
             useEffect(() => {
                 const parts = Array.from({ length: 30 }).map((_, i) => ({
                     id: i,
@@ -335,7 +378,6 @@
                 }));
                 setParticles(parts);
             }, []);
-
             return (
                 <div className="fx-layer"> 
                     {particles.map(s => (
@@ -375,7 +417,6 @@
             const handleSpiralClick = () => {
                 if (isInvoking) return;
                 setIsInvoking(true);
-                
                 setTimeout(() => {
                     const link = document.createElement('a');
                     link.href = FILE_DEMO; 
@@ -383,8 +424,7 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    
-                    setStage('seal'); // Cambiado de 'password' a 'seal'
+                    setStage('seal'); 
                     setIsInvoking(false);
                 }, 2000);
             };
@@ -396,7 +436,6 @@
             const handleSecondDownload = () => {
                 if (isCollecting) return;
                 setIsCollecting(true);
-
                 setTimeout(() => {
                     const link = document.createElement('a');
                     link.href = FILE_BONUS; 
@@ -404,7 +443,6 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-
                     setStage('closed');
                     setIsPlaying(false);
                     setIsCollecting(false);
@@ -425,7 +463,6 @@
                         <img src={IMG_OPENING} className={`book-image ${stage === 'opening' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
                         <img src={IMG_OPEN_BOOK} className={`book-image ${['scene1','seal','scene2'].includes(stage) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-                        {/* CAPA DE EFECTOS INDEPENDIENTE (Corrige el bug de posición) */}
                         {stage !== 'closed' && <Sparkles />}
 
                         {['scene1', 'seal', 'scene2'].includes(stage) && (
@@ -435,7 +472,7 @@
                                 )}
 
                                 {stage === 'seal' && (
-                                    <ResonanceSeal onSuccess={handleSealSuccess} />
+                                    <KeyboardSeal onSuccess={handleSealSuccess} />
                                 )}
 
                                 {stage === 'scene2' && (
