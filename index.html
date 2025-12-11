@@ -69,7 +69,6 @@
             z-index: 1;
         }
 
-        /* --- CAPA FX (Corrección de estrellas) --- */
         .fx-layer {
             position: absolute;
             top: 0;
@@ -80,7 +79,6 @@
             z-index: 5;
         }
 
-        /* --- ÁREA MÁGICA --- */
         .magic-area {
             position: absolute;
             left: 50.78%;
@@ -100,7 +98,7 @@
             50% { transform: translateY(-1%); }
         }
 
-        /* --- ESTILOS DEL SELLO DE ESCRITURA --- */
+        /* --- ESTILOS DEL "ULTRA SELLO" --- */
         .ghost-input {
             position: absolute;
             width: 100%;
@@ -110,44 +108,57 @@
             z-index: 50;
         }
 
-        .rune-slot {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        /* Anillos giratorios */
+        .ring-slow { animation: spin 60s linear infinite; }
+        .ring-med { animation: spin 20s linear infinite reverse; }
+        .ring-fast { animation: spin 5s linear infinite; }
         
-        .slot-active {
-            stroke: #FFD700;
-            stroke-width: 2;
-            filter: drop-shadow(0 0 8px #FFD700);
+        /* Modificadores de velocidad según progreso */
+        .speed-1 { animation-duration: 10s !important; }
+        .speed-2 { animation-duration: 5s !important; }
+        .speed-3 { animation-duration: 2s !important; }
+        .speed-4 { animation-duration: 0.5s !important; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Efecto de "Explosión" al escribir */
+        .burst-ring {
+            animation: burstAnim 0.6s ease-out forwards;
+            transform-origin: center;
+            opacity: 0;
+        }
+        @keyframes burstAnim {
+            0% { transform: scale(0.8); opacity: 1; stroke-width: 5; }
+            100% { transform: scale(2); opacity: 0; stroke-width: 0; }
         }
 
+        /* Texto mágico */
         .rune-text {
             font-family: 'VT323', monospace;
             fill: #FFD700;
-            text-shadow: 0 0 10px #ff4500;
-            animation: typePop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 0 15px #FFD700, 0 0 30px #ff0000;
+            filter: drop-shadow(0 0 5px #ff4500);
+            animation: textAppear 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        /* Cursor mágico parpadeante */
-        .magic-cursor {
-            fill: #FFD700;
-            animation: blink 1s infinite;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        @keyframes typePop {
-            0% { transform: scale(0); opacity: 0; }
-            80% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
+        @keyframes textAppear {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
         .shake-error { animation: shakeError 0.5s ease-in-out; }
         @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-5px) rotate(-2deg); }
-            40%, 80% { transform: translateX(5px) rotate(2deg); }
+            20%, 60% { transform: translateX(-10px) rotate(-5deg); filter: hue-rotate(90deg); }
+            40%, 80% { transform: translateX(10px) rotate(5deg); }
         }
 
-        /* Sparkles */
+        /* Cursor mágico */
+        .magic-cursor {
+            fill: #FFD700;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; r: 5; } 50% { opacity: 0.5; r: 7; } }
+
         .sparkle {
             position: absolute;
             pointer-events: none;
@@ -173,7 +184,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- ASSETS ---
         const IMG_CLOSED = "librocerrado.png"; 
         const IMG_OPENING = "libroabierto.png"; 
         const IMG_OPEN_BOOK = "libro.png"; 
@@ -246,33 +256,37 @@
             </div>
         );
 
-        // 3. SELLO DE INSCRIPCIÓN ETÉREA (Teclado Real, Estética Mágica)
-        const KeyboardSeal = ({ onSuccess }) => {
+        // 3. SELLO COMPLEJO (Keyboard Enhanced)
+        const EnhancedKeyboardSeal = ({ onSuccess }) => {
             const [inputValue, setInputValue] = useState("");
             const [isError, setIsError] = useState(false);
+            const [burst, setBurst] = useState(null); // Para el efecto visual al teclear
             const inputRef = useRef(null);
 
-            // Posiciones geométricas para las letras (Diamantes alrededor del centro)
-            // Coordenadas relativas al centro 200,200 del SVG
+            // Posiciones para las runas (Norte, Este, Sur, Oeste)
             const slots = [
-                { x: 200, y: 120 }, // Arriba
-                { x: 280, y: 200 }, // Derecha
-                { x: 200, y: 280 }, // Abajo
-                { x: 120, y: 200 }  // Izquierda
+                { x: 200, y: 100 }, 
+                { x: 300, y: 200 }, 
+                { x: 200, y: 300 }, 
+                { x: 100, y: 200 }
             ];
 
             const handleChange = (e) => {
                 if (isError) return;
-                const val = e.target.value.toUpperCase().slice(0, 4); // Máximo 4 caracteres
+                const val = e.target.value.toUpperCase().slice(0, 4);
+                
+                // Efecto de "Burst" si se añadió una letra
+                if(val.length > inputValue.length) {
+                    setBurst(val.length - 1);
+                    setTimeout(() => setBurst(null), 500);
+                }
+
                 setInputValue(val);
 
-                // Comprobar código
                 if (val.length === 4) {
                     if (val === "GURU") {
-                        // Éxito
-                        setTimeout(() => onSuccess(), 500);
+                        setTimeout(() => onSuccess(), 800);
                     } else {
-                        // Error
                         setIsError(true);
                         setTimeout(() => {
                             setInputValue("");
@@ -282,62 +296,76 @@
                 }
             };
 
-            // Mantener el foco
-            const handleClick = () => {
-                if(inputRef.current) inputRef.current.focus();
-            };
+            const handleClick = () => { if(inputRef.current) inputRef.current.focus(); };
+
+            // Determina la velocidad de rotación según el progreso
+            const speedClass = inputValue.length === 0 ? "" 
+                             : inputValue.length === 1 ? "speed-1" 
+                             : inputValue.length === 2 ? "speed-2" 
+                             : inputValue.length === 3 ? "speed-3" 
+                             : "speed-4";
 
             return (
                 <div className={`w-full h-full flex flex-col items-center justify-center relative animate-[fadeIn_0.5s_ease-out]`} onClick={handleClick}>
                     
-                    {/* INPUT INVISIBLE (El motor real) */}
-                    <input 
-                        ref={inputRef}
-                        type="text" 
-                        value={inputValue}
-                        onChange={handleChange}
-                        className="ghost-input"
-                        autoFocus
-                        autoComplete="off"
-                    />
+                    <input ref={inputRef} type="text" value={inputValue} onChange={handleChange} className="ghost-input" autoFocus autoComplete="off" />
 
-                    {/* INTERFAZ VISUAL DEL SELLO */}
                     <div className="relative w-[350px] h-[350px] md:w-[600px] md:h-[600px]">
-                        <svg viewBox="0 0 400 400" className="w-full h-full">
-                            
-                            {/* Círculo Base Giratorio */}
-                            <g className={`origin-center transition-all duration-300 ${isError ? 'shake-error' : ''}`}>
-                                <circle cx="200" cy="200" r="160" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="10,5" className="animate-[spin_40s_linear_infinite] opacity-50"/>
-                                <circle cx="200" cy="200" r="140" fill="none" stroke="#d63031" strokeWidth="0.5" className="animate-[spin_20s_linear_infinite_reverse] opacity-40"/>
+                        <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_0_15px_rgba(255,215,0,0.3)]">
+                            <defs>
+                                <radialGradient id="coreLight" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stopColor="#fff" />
+                                    <stop offset="100%" stopColor="#FFD700" stopOpacity="0" />
+                                </radialGradient>
+                            </defs>
+
+                            {/* --- CAPAS DE FONDO ROTATORIAS --- */}
+                            <g className={`origin-center ring-slow ${isError ? 'shake-error' : speedClass}`}>
+                                {/* Anillo Rúnico Exterior */}
+                                <circle cx="200" cy="200" r="180" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="5,15" opacity="0.6"/>
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#d63031" strokeWidth="0.5" />
                                 
-                                {/* Decoración central */}
-                                <rect x="150" y="150" width="100" height="100" transform="rotate(45 200 200)" fill="none" stroke="#4a0e4e" strokeWidth="1" opacity="0.3" />
+                                {/* Anillo Medio (Geometría) */}
+                                <g className="ring-med" opacity="0.4">
+                                    <path d="M200 40 L360 200 L200 360 L40 200 Z" fill="none" stroke="#FFD700" strokeWidth="1" />
+                                    <rect x="120" y="120" width="160" height="160" fill="none" stroke="#4a0e4e" strokeWidth="1" />
+                                </g>
                             </g>
 
-                            {/* RANURAS DE LETRAS (Slots) */}
+                            {/* --- NÚCLEO ACTIVO --- */}
+                            {/* Crece con cada letra */}
+                            <circle cx="200" cy="200" r={20 + (inputValue.length * 15)} fill="url(#coreLight)" opacity="0.3" className="transition-all duration-500" />
+                            <circle cx="200" cy="200" r={10 + (inputValue.length * 10)} fill="none" stroke="#FFD700" strokeWidth="2" className={`ring-fast`} opacity="0.8"/>
+
+                            {/* --- SLOTS Y LETRAS --- */}
                             {slots.map((pos, i) => {
-                                const hasLetter = i < inputValue.length;
-                                const isCurrent = i === inputValue.length;
+                                const active = i < inputValue.length;
+                                const isTarget = i === inputValue.length && !isError;
                                 
                                 return (
                                     <g key={i} transform={`translate(${pos.x}, ${pos.y})`}>
-                                        {/* Forma del Slot (Rombo) */}
-                                        <path d="M0 -30 L30 0 L0 30 L-30 0 Z" 
-                                              fill={hasLetter ? "rgba(255, 215, 0, 0.1)" : "none"} 
-                                              stroke={hasLetter ? "#FFD700" : "#4a0e4e"} 
-                                              strokeWidth={hasLetter ? 2 : 1}
-                                              className={`rune-slot ${hasLetter ? 'slot-active' : ''}`}
-                                              opacity={hasLetter || isCurrent ? 1 : 0.3}
-                                        />
                                         
-                                        {/* Cursor indicador (si es el turno de escribir aquí) */}
-                                        {!hasLetter && isCurrent && !isError && (
-                                            <circle r="5" fill="#FFD700" className="magic-cursor" />
+                                        {/* Efecto de Explosión al escribir */}
+                                        {burst === i && (
+                                            <circle r="40" fill="none" stroke="#FFD700" strokeWidth="2" className="burst-ring" />
                                         )}
 
-                                        {/* La Letra Mágica */}
-                                        {hasLetter && (
-                                            <text y="10" textAnchor="middle" fontSize="40" fontWeight="bold" className="rune-text origin-center">
+                                        {/* Base del Slot */}
+                                        <circle r="35" fill="rgba(0,0,0,0.3)" stroke={active ? "#FFD700" : "#4a0e4e"} strokeWidth={active ? 2 : 1} 
+                                                className="transition-all duration-300" />
+                                        
+                                        {/* Decoración del Slot (Gira si está activo) */}
+                                        <g className={active ? "ring-fast" : ""}>
+                                            <rect x="-25" y="-25" width="50" height="50" fill="none" stroke={active ? "#FFD700" : "#4a0e4e"} 
+                                                  strokeWidth="1" opacity={active ? 0.8 : 0.2} rx="5" />
+                                        </g>
+
+                                        {/* Cursor */}
+                                        {isTarget && <circle r="5" className="magic-cursor" />}
+
+                                        {/* Letra */}
+                                        {active && (
+                                            <text y="12" textAnchor="middle" fontSize="40" fontWeight="bold" className="rune-text origin-center">
                                                 {inputValue[i]}
                                             </text>
                                         )}
@@ -345,18 +373,18 @@
                                 );
                             })}
                             
-                            {/* Feedback de Error Visual */}
+                            {/* Mensaje de Error (Grande en el centro) */}
                             {isError && (
-                                <text x="200" y="200" textAnchor="middle" fill="#d63031" fontSize="150" opacity="0.5" fontWeight="bold" className="animate-pulse">X</text>
+                                <text x="200" y="215" textAnchor="middle" fill="#d63031" fontSize="100" fontWeight="bold" opacity="0.8" className="animate-pulse">ERROR</text>
                             )}
 
                         </svg>
                         
-                        {/* Texto de Ayuda Flotante (Fuera del SVG para nitidez) */}
-                        <div className="absolute bottom-10 w-full text-center pointer-events-none">
-                            <p className="text-[#4a0e4e]/50 font-bold tracking-widest text-sm animate-pulse">
-                                {inputValue.length === 0 ? "[ ESCRIBE EL CÓDIGO ]" : "..."}
-                            </p>
+                        {/* Texto guía inferior */}
+                        <div className="absolute bottom-4 w-full text-center pointer-events-none">
+                             <p className="text-[#FFD700]/60 font-bold tracking-[0.5em] text-sm animate-pulse bg-black/20 inline-block px-4 py-1 rounded">
+                                {inputValue.length === 0 ? "INVOCA: G U R U" : "..."}
+                             </p>
                         </div>
                     </div>
                 </div>
@@ -472,7 +500,7 @@
                                 )}
 
                                 {stage === 'seal' && (
-                                    <KeyboardSeal onSuccess={handleSealSuccess} />
+                                    <EnhancedKeyboardSeal onSuccess={handleSealSuccess} />
                                 )}
 
                                 {stage === 'scene2' && (
