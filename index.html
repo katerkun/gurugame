@@ -260,10 +260,9 @@
         const EnhancedKeyboardSeal = ({ onSuccess }) => {
             const [inputValue, setInputValue] = useState("");
             const [isError, setIsError] = useState(false);
-            const [burst, setBurst] = useState(null); // Para el efecto visual al teclear
+            const [burst, setBurst] = useState(null); 
             const inputRef = useRef(null);
 
-            // Posiciones para las runas (Norte, Este, Sur, Oeste)
             const slots = [
                 { x: 200, y: 100 }, 
                 { x: 300, y: 200 }, 
@@ -275,7 +274,6 @@
                 if (isError) return;
                 const val = e.target.value.toUpperCase().slice(0, 4);
                 
-                // Efecto de "Burst" si se añadió una letra
                 if(val.length > inputValue.length) {
                     setBurst(val.length - 1);
                     setTimeout(() => setBurst(null), 500);
@@ -298,7 +296,6 @@
 
             const handleClick = () => { if(inputRef.current) inputRef.current.focus(); };
 
-            // Determina la velocidad de rotación según el progreso
             const speedClass = inputValue.length === 0 ? "" 
                              : inputValue.length === 1 ? "speed-1" 
                              : inputValue.length === 2 ? "speed-2" 
@@ -319,51 +316,35 @@
                                 </radialGradient>
                             </defs>
 
-                            {/* --- CAPAS DE FONDO ROTATORIAS --- */}
                             <g className={`origin-center ring-slow ${isError ? 'shake-error' : speedClass}`}>
-                                {/* Anillo Rúnico Exterior */}
                                 <circle cx="200" cy="200" r="180" fill="none" stroke="#4a0e4e" strokeWidth="1" strokeDasharray="5,15" opacity="0.6"/>
                                 <circle cx="200" cy="200" r="170" fill="none" stroke="#d63031" strokeWidth="0.5" />
                                 
-                                {/* Anillo Medio (Geometría) */}
                                 <g className="ring-med" opacity="0.4">
                                     <path d="M200 40 L360 200 L200 360 L40 200 Z" fill="none" stroke="#FFD700" strokeWidth="1" />
                                     <rect x="120" y="120" width="160" height="160" fill="none" stroke="#4a0e4e" strokeWidth="1" />
                                 </g>
                             </g>
 
-                            {/* --- NÚCLEO ACTIVO --- */}
-                            {/* Crece con cada letra */}
                             <circle cx="200" cy="200" r={20 + (inputValue.length * 15)} fill="url(#coreLight)" opacity="0.3" className="transition-all duration-500" />
                             <circle cx="200" cy="200" r={10 + (inputValue.length * 10)} fill="none" stroke="#FFD700" strokeWidth="2" className={`ring-fast`} opacity="0.8"/>
 
-                            {/* --- SLOTS Y LETRAS --- */}
                             {slots.map((pos, i) => {
                                 const active = i < inputValue.length;
                                 const isTarget = i === inputValue.length && !isError;
                                 
                                 return (
                                     <g key={i} transform={`translate(${pos.x}, ${pos.y})`}>
-                                        
-                                        {/* Efecto de Explosión al escribir */}
                                         {burst === i && (
                                             <circle r="40" fill="none" stroke="#FFD700" strokeWidth="2" className="burst-ring" />
                                         )}
-
-                                        {/* Base del Slot */}
                                         <circle r="35" fill="rgba(0,0,0,0.3)" stroke={active ? "#FFD700" : "#4a0e4e"} strokeWidth={active ? 2 : 1} 
                                                 className="transition-all duration-300" />
-                                        
-                                        {/* Decoración del Slot (Gira si está activo) */}
                                         <g className={active ? "ring-fast" : ""}>
                                             <rect x="-25" y="-25" width="50" height="50" fill="none" stroke={active ? "#FFD700" : "#4a0e4e"} 
                                                   strokeWidth="1" opacity={active ? 0.8 : 0.2} rx="5" />
                                         </g>
-
-                                        {/* Cursor */}
                                         {isTarget && <circle r="5" className="magic-cursor" />}
-
-                                        {/* Letra */}
                                         {active && (
                                             <text y="12" textAnchor="middle" fontSize="40" fontWeight="bold" className="rune-text origin-center">
                                                 {inputValue[i]}
@@ -373,13 +354,11 @@
                                 );
                             })}
                             
-                            {/* Mensaje de Error (Grande en el centro) */}
                             {isError && (
                                 <text x="200" y="215" textAnchor="middle" fill="#d63031" fontSize="100" fontWeight="bold" opacity="0.8" className="animate-pulse">ERROR</text>
                             )}
 
                         </svg>
-                        
                     </div>
                 </div>
             );
@@ -446,8 +425,13 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    setStage('seal'); 
-                    setIsInvoking(false);
+                    
+                    // RETRASO AÑADIDO: Espera 1.5 segundos despues de iniciar descarga para cambiar escena
+                    setTimeout(() => {
+                        setStage('seal'); 
+                        setIsInvoking(false);
+                    }, 1500);
+
                 }, 2000);
             };
 
@@ -465,13 +449,18 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    setStage('closed');
-                    setIsPlaying(false);
-                    setIsCollecting(false);
-                    if(audioRef.current) {
-                        audioRef.current.pause();
-                        audioRef.current.currentTime = 0;
-                    }
+                    
+                    // RETRASO AÑADIDO: Espera 1.5 segundos despues de iniciar descarga para resetear
+                    setTimeout(() => {
+                        setStage('closed');
+                        setIsPlaying(false);
+                        setIsCollecting(false);
+                        if(audioRef.current) {
+                            audioRef.current.pause();
+                            audioRef.current.currentTime = 0;
+                        }
+                    }, 1500);
+
                 }, 2000);
             };
 
