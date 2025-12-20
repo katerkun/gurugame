@@ -428,6 +428,15 @@
                     
                     // RETRASO AÑADIDO: Espera 1.5 segundos despues de iniciar descarga para cambiar escena
                     setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.href = FILE_DEMO; 
+    
+                        link.target = "_blank"; // <--- AGREGA ESTO para evitar conflictos de origen
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+}, 2000);
+                    setTimeout(() => {
                         setStage('seal'); 
                         setIsInvoking(false);
                     }, 1500);
